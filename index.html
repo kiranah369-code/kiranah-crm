@@ -941,7 +941,8 @@
                     <button class="btn-secondary" onclick="app.showQuestionnaireModal()">問診票を見る</button>
                     <button class="btn-primary" onclick="app.showScreen('session')">施術記録を追加</button>
                 </div>
-                <h3 style="margin: 24px 0 16px 0; color: #c8956c;">施術記録</h3>
+                <h3 style="margin: 24px 0 12px 0; color: #c8956c;">施術記録</h3>
+                <input type="text" id="sessionSearch" class="search-bar" placeholder="🔍 日付・メニューで絞り込み" oninput="app.filterSessions(this.value)" style="margin-bottom:16px;">
                 <div class="session-list" id="sessionList"></div>
             </div>
 
@@ -987,7 +988,24 @@
                     </div>
 
                     <h3 style="margin: 24px 0 16px 0; color: #c8956c;">圧感*</h3>
-                    <div class="radio-group" id="pressureGroup"></div>
+                    <div class="radio-group" id="pressureGroup">
+                        <div class="radio-item">
+                            <input type="radio" id="pressure-0" name="pressure" value="弱め">
+                            <label for="pressure-0">弱め</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="pressure-1" name="pressure" value="普通">
+                            <label for="pressure-1">普通</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="pressure-2" name="pressure" value="強め">
+                            <label for="pressure-2">強め</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="pressure-3" name="pressure" value="お客様好み">
+                            <label for="pressure-3">お客様好み</label>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label>体の状態・気づき</label>
@@ -1127,7 +1145,13 @@
                 };
                 document.getElementById('headerTitle').textContent = titles[screenName] || 'KIRANAH';
 
-                if (screenName === 'detail' && this.currentCustomerId) {
+                if (screenName === 'home') {
+                    const searchInputEl = document.getElementById('searchInput');
+                    if (searchInputEl) searchInputEl.value = '';
+                    this.renderCustomerList();
+                } else if (screenName === 'detail' && this.currentCustomerId) {
+                    const sessionSearchEl = document.getElementById('sessionSearch');
+                    if (sessionSearchEl) sessionSearchEl.value = '';
                     this.renderCustomerDetail();
                 } else if (screenName === 'register') {
                     document.getElementById('registerForm').reset();
@@ -1512,16 +1536,20 @@
             // 顧客一覧
             renderCustomerList(filter = '') {
                 const list = document.getElementById('customerList');
-                let filtered = this.clients;
 
-                if (filter) {
-                    filtered = this.clients.filter(c =>
-                        c.name.includes(filter) || c.phone.includes(filter)
-                    );
+                // 検索ワードがない場合はガイドを表示（一覧は出さない）
+                if (!filter || filter.trim() === '') {
+                    const count = this.clients.length;
+                    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">お名前または電話番号で検索してください<br><span style="font-size:13px;color:#aaa;margin-top:4px;display:block;">登録顧客数：${count}名</span></div></div>`;
+                    return;
                 }
 
+                let filtered = this.clients.filter(c =>
+                    c.name.includes(filter) || c.phone.includes(filter)
+                );
+
                 if (filtered.length === 0) {
-                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">顧客情報がありません</div></div>';
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">該当する顧客が見つかりません</div></div>';
                     return;
                 }
 
@@ -1613,9 +1641,22 @@
                 this.renderSessionList(customer);
             },
 
-            renderSessionList(customer) {
+            filterSessions(query) {
+                const customer = this.clients.find(c => c.id === this.currentCustomerId);
+                if (customer) this.renderSessionList(customer, query);
+            },
+
+            renderSessionList(customer, filter = '') {
                 const list = document.getElementById('sessionList');
-                const sessions = customer.sessions || [];
+                let sessions = customer.sessions || [];
+
+                if (filter) {
+                    sessions = sessions.filter(s =>
+                        (s.date || '').includes(filter) ||
+                        (s.menu || '').includes(filter) ||
+                        (s.areas || '').includes(filter)
+                    );
+                }
 
                 if (sessions.length === 0) {
                     list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🗓️</div><div class="empty-state-text">施術記録がありません</div></div>';
@@ -1649,7 +1690,7 @@
                     menu: document.getElementById('sessionMenu').value,
                     duration: parseInt(document.getElementById('sessionDuration').value) || 0,
                     areas: document.getElementById('sessionBodyParts').value,
-                    pressure: document.querySelector('input[name="pressure"]:checked').value,
+                    pressure: (document.querySelector('input[name="pressure"]:checked') || {}).value || '',
                     notes: document.getElementById('sessionNotes').value,
                     nextNotes: document.getElementById('sessionNextNotes').value,
                     nextInterval: document.getElementById('sessionNextInterval').value
