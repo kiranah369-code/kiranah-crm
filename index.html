@@ -956,17 +956,24 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>メニュー*</label>
-                            <select id="sessionMenu" required>
-                                <option value="">選択してください</option>
-                                <option value="全身60分">全身60分</option>
-                                <option value="全身90分">全身90分</option>
-                                <option value="部分30分">部分30分</option>
-                                <option value="ヘッドスパ">ヘッドスパ</option>
-                                <option value="フット">フット</option>
-                                <option value="その他">その他</option>
-                            </select>
+                        <div class="form-group" style="flex: 2;">
+                            <label>メニュー*（タップ・ペンで入力）</label>
+                            <input type="text" id="sessionMenu" list="menuOptions" placeholder="メニューを入力または選択" required autocomplete="off" style="font-size:17px; padding:12px;">
+                            <datalist id="menuOptions">
+                                <option value="ボディケア60分">
+                                <option value="ボディケア90分">
+                                <option value="ボディケア120分">
+                                <option value="アロマボディ60分">
+                                <option value="アロマボディ90分">
+                                <option value="ボディケア80分＋アロマヘッドスパ20分">
+                                <option value="アロマヘッドスパ30分">
+                                <option value="アロマヘッドスパ60分">
+                                <option value="フットリフレクソロジー30分">
+                                <option value="フットリフレクソロジー60分">
+                                <option value="首・肩・背中 部分ケア30分">
+                                <option value="ヘッドスパ">
+                                <option value="その他">
+                            </datalist>
                         </div>
                         <div class="form-group">
                             <label>施術時間（分）</label>
@@ -974,76 +981,9 @@
                         </div>
                     </div>
 
-                    <h3 style="margin: 24px 0 16px 0; color: #c8956c;">施術部位</h3>
-                    <div class="checkbox-group" id="areasGroup"></div>
-
-                    <!-- 体の図（施術記録用） -->
-                    <h3 style="margin: 24px 0 16px 0; color: #c8956c;">施術箇所</h3>
-                    <div class="body-maps-row">
-                        <div class="body-map-column">
-                            <div class="body-map-col-title">前面</div>
-                            <div class="body-map-container">
-                                <div class="body-map-label">タップ・ペンで描画</div>
-                                <div class="body-map-wrapper">
-                                    <svg viewBox="0 0 120 300" style="width:100%; height:100%; display:block;">
-                                        <ellipse cx="60" cy="22" rx="14" ry="16" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="55" y="37" width="10" height="10" rx="3" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <path d="M 26,47 C 22,50 20,58 20,66 L 21,115 C 21,118 24,120 28,120 L 92,120 C 96,120 99,118 99,115 L 100,66 C 100,58 98,50 94,47 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="8" y="48" width="13" height="52" rx="6" transform="rotate(6, 14, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="99" y="48" width="13" height="52" rx="6" transform="rotate(-6, 106, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="4" y="98" width="11" height="44" rx="5" transform="rotate(9, 9, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="105" y="98" width="11" height="44" rx="5" transform="rotate(-9, 111, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="8" cy="148" rx="7" ry="10" transform="rotate(11, 8, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="112" cy="148" rx="7" ry="10" transform="rotate(-11, 112, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <path d="M 28,120 Q 60,136 92,120 L 87,146 Q 60,156 33,146 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="34" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="63" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="36" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="66" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="44" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="76" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                    </svg>
-                                    <canvas class="body-map-canvas" id="sessionBodyMapFrontCanvas"></canvas>
-                                </div>
-                                <div class="body-map-controls">
-                                    <button type="button" class="btn-secondary btn-small" onclick="app.setDrawMode('pen', 'sessionFront')">✏ ペン</button>
-                                    <button type="button" class="btn-secondary btn-small" onclick="app.setDrawMode('eraser', 'sessionFront')">🧹 消しゴム</button>
-                                    <button type="button" class="btn-secondary btn-small" onclick="app.clearBodyMap('sessionFront')">全消し</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="body-map-column">
-                            <div class="body-map-col-title">背面</div>
-                            <div class="body-map-container">
-                                <div class="body-map-label">タップ・ペンで描画</div>
-                                <div class="body-map-wrapper">
-                                    <svg viewBox="0 0 120 300" style="width:100%; height:100%; display:block;">
-                                        <ellipse cx="60" cy="22" rx="14" ry="16" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="55" y="37" width="10" height="10" rx="3" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <path d="M 26,47 C 22,50 20,58 20,66 L 21,115 C 21,118 24,120 28,120 L 92,120 C 96,120 99,118 99,115 L 100,66 C 100,58 98,50 94,47 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="8" y="48" width="13" height="52" rx="6" transform="rotate(6, 14, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="99" y="48" width="13" height="52" rx="6" transform="rotate(-6, 106, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="4" y="98" width="11" height="44" rx="5" transform="rotate(9, 9, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="105" y="98" width="11" height="44" rx="5" transform="rotate(-9, 111, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="8" cy="148" rx="7" ry="10" transform="rotate(11, 8, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="112" cy="148" rx="7" ry="10" transform="rotate(-11, 112, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <path d="M 28,120 Q 60,136 92,120 L 87,146 Q 60,156 33,146 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="34" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="63" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="36" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <rect x="66" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="44" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                        <ellipse cx="76" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
-                                    </svg>
-                                    <canvas class="body-map-canvas" id="sessionBodyMapBackCanvas"></canvas>
-                                </div>
-                                <div class="body-map-controls">
-                                    <button type="button" class="btn-secondary btn-small" onclick="app.setDrawMode('pen', 'sessionBack')">✏ ペン</button>
-                                    <button type="button" class="btn-secondary btn-small" onclick="app.setDrawMode('eraser', 'sessionBack')">🧹 消しゴム</button>
-                                    <button type="button" class="btn-secondary btn-small" onclick="app.clearBodyMap('sessionBack')">全消し</button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>施術部位（自由入力）</label>
+                        <textarea id="sessionBodyParts" placeholder="例：背中全体、肩、首" style="min-height:80px;"></textarea>
                     </div>
 
                     <h3 style="margin: 24px 0 16px 0; color: #c8956c;">圧感*</h3>
@@ -1081,6 +1021,15 @@
             <div class="modal-close" onclick="app.closeModal()">&times;</div>
             <h2 class="modal-title">問診票</h2>
             <div id="questionnaireContent"></div>
+        </div>
+    </div>
+
+    <!-- モーダル：施術記録詳細 -->
+    <div class="modal" id="sessionModal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="app.closeSessionModal()">&times;</div>
+            <h2 class="modal-title">施術記録</h2>
+            <div id="sessionModalContent"></div>
         </div>
     </div>
 
@@ -1317,8 +1266,7 @@
 
             // 体の図
             setupBodyMaps() {
-                const canvases = ['bodyMapFrontCanvas', 'bodyMapBackCanvas',
-                                 'sessionBodyMapFrontCanvas', 'sessionBodyMapBackCanvas'];
+                const canvases = ['bodyMapFrontCanvas', 'bodyMapBackCanvas'];
                 canvases.forEach(canvasId => {
                     const canvas = document.getElementById(canvasId);
                     // 非表示時でもサイズを固定設定（offsetWidthが0になる問題を防ぐ）
@@ -1450,8 +1398,7 @@
             },
 
             clearAllBodyMaps() {
-                ['bodyMapFrontCanvas', 'bodyMapBackCanvas',
-                 'sessionBodyMapFrontCanvas', 'sessionBodyMapBackCanvas'].forEach(id => {
+                ['bodyMapFrontCanvas', 'bodyMapBackCanvas'].forEach(id => {
                     const canvas = document.getElementById(id);
                     if (canvas) {
                         const ctx = canvas.getContext('2d');
@@ -1652,13 +1599,11 @@
                     <div class="session-card">
                         <div class="session-date">${session.date}</div>
                         <div class="session-menu">${session.menu} (${session.duration}分)</div>
-
-                        <div class="session-detail">施術部位: ${session.areas.join('、')}</div>
-                        <div class="session-detail">圧感: ${session.pressure}</div>
-                        <div class="session-detail">次回間隔: ${session.nextInterval || '特になし'}</div>
+                        <div class="session-detail">施術部位: ${typeof session.areas === 'string' ? session.areas : (session.areas || []).join('、')}</div>
                         <div class="session-actions">
-                            <button class="btn-secondary" onclick="app.editSession('${session.id}')">編集</button>
-                            <button class="btn-danger" onclick="app.deleteSession('${session.id}')">削除</button>
+                            <button class="btn-primary btn-small" onclick="app.showSessionModal('${session.id}')">📋 見る</button>
+                            <button class="btn-secondary btn-small" onclick="app.editSession('${session.id}')">編集</button>
+                            <button class="btn-danger btn-small" onclick="app.deleteSession('${session.id}')">削除</button>
                         </div>
                     </div>
                 `).join('');
@@ -1671,16 +1616,12 @@
                 const customer = this.clients.find(c => c.id === this.currentCustomerId);
                 if (!customer) return;
 
-                const areas = Array.from(document.querySelectorAll('.area-check:checked')).map(el => el.value);
-
                 const session = {
                     id: this.currentSessionId || this.generateId(),
                     date: document.getElementById('sessionDate').value,
                     menu: document.getElementById('sessionMenu').value,
                     duration: parseInt(document.getElementById('sessionDuration').value) || 0,
-                    areas: areas,
-                    bodyMapFront: document.getElementById('sessionBodyMapFrontCanvas').toDataURL(),
-                    bodyMapBack: document.getElementById('sessionBodyMapBackCanvas').toDataURL(),
+                    areas: document.getElementById('sessionBodyParts').value,
                     pressure: document.querySelector('input[name="pressure"]:checked').value,
                     notes: document.getElementById('sessionNotes').value,
                     nextNotes: document.getElementById('sessionNextNotes').value,
@@ -1697,9 +1638,9 @@
                 }
 
                 this.saveClients();
-                alert('施術記録を保存しました');
                 this.showScreen('detail');
                 this.renderCustomerDetail();
+                this.showToast('✅ 施術記録を保存しました');
             },
 
             editSession(sessionId) {
@@ -1713,10 +1654,7 @@
                 document.getElementById('sessionDate').value = session.date;
                 document.getElementById('sessionMenu').value = session.menu;
                 document.getElementById('sessionDuration').value = session.duration;
-
-                document.querySelectorAll('.area-check').forEach(el => {
-                    el.checked = session.areas.includes(el.value);
-                });
+                document.getElementById('sessionBodyParts').value = typeof session.areas === 'string' ? session.areas : (session.areas || []).join('、');
 
                 document.querySelector(`input[value="${session.pressure}"]`).checked = true;
                 document.getElementById('sessionNotes').value = session.notes;
@@ -1760,13 +1698,55 @@
 
                     <div class="questionnaire-section">
                         <div class="questionnaire-section-title">気になる箇所</div>
-                        <div style="margin-bottom: 12px;">
-                            <div style="font-weight: 600; margin-bottom: 8px;">前面</div>
-                            <img src="${customer.bodyMapFront}" style="width: 100px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; margin-bottom: 8px;">背面</div>
-                            <img src="${customer.bodyMapBack}" style="width: 100px; border: 1px solid #ddd; border-radius: 4px;">
+                        <div style="display:flex; gap:16px; align-items:flex-start; margin-top:12px;">
+                            <div style="flex:1; text-align:center;">
+                                <div style="font-weight:700; color:#c8956c; margin-bottom:8px;">前面</div>
+                                <div style="position:relative; width:120px; height:300px; margin:0 auto; border:1px solid #ddd; border-radius:8px; overflow:hidden; background:white;">
+                                    <svg viewBox="0 0 120 300" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                        <ellipse cx="60" cy="22" rx="14" ry="16" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="55" y="37" width="10" height="10" rx="3" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <path d="M 26,47 C 22,50 20,58 20,66 L 21,115 C 21,118 24,120 28,120 L 92,120 C 96,120 99,118 99,115 L 100,66 C 100,58 98,50 94,47 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="8" y="48" width="13" height="52" rx="6" transform="rotate(6, 14, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="99" y="48" width="13" height="52" rx="6" transform="rotate(-6, 106, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="4" y="98" width="11" height="44" rx="5" transform="rotate(9, 9, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="105" y="98" width="11" height="44" rx="5" transform="rotate(-9, 111, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="8" cy="148" rx="7" ry="10" transform="rotate(11, 8, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="112" cy="148" rx="7" ry="10" transform="rotate(-11, 112, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <path d="M 28,120 Q 60,136 92,120 L 87,146 Q 60,156 33,146 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="34" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="63" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="36" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="66" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="44" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="76" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                    </svg>
+                                    <img src="${customer.bodyMapFront}" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                </div>
+                            </div>
+                            <div style="flex:1; text-align:center;">
+                                <div style="font-weight:700; color:#c8956c; margin-bottom:8px;">背面</div>
+                                <div style="position:relative; width:120px; height:300px; margin:0 auto; border:1px solid #ddd; border-radius:8px; overflow:hidden; background:white;">
+                                    <svg viewBox="0 0 120 300" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                        <ellipse cx="60" cy="22" rx="14" ry="16" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="55" y="37" width="10" height="10" rx="3" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <path d="M 26,47 C 22,50 20,58 20,66 L 21,115 C 21,118 24,120 28,120 L 92,120 C 96,120 99,118 99,115 L 100,66 C 100,58 98,50 94,47 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="8" y="48" width="13" height="52" rx="6" transform="rotate(6, 14, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="99" y="48" width="13" height="52" rx="6" transform="rotate(-6, 106, 74)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="4" y="98" width="11" height="44" rx="5" transform="rotate(9, 9, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="105" y="98" width="11" height="44" rx="5" transform="rotate(-9, 111, 120)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="8" cy="148" rx="7" ry="10" transform="rotate(11, 8, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="112" cy="148" rx="7" ry="10" transform="rotate(-11, 112, 148)" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <path d="M 28,120 Q 60,136 92,120 L 87,146 Q 60,156 33,146 Z" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="34" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="63" y="144" width="23" height="60" rx="11" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="36" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <rect x="66" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="44" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <ellipse cx="76" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                    </svg>
+                                    <img src="${customer.bodyMapBack}" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1796,6 +1776,50 @@
 
             closeModal() {
                 document.getElementById('questionnaireModal').classList.remove('active');
+            },
+
+            showSessionModal(sessionId) {
+                const customer = this.clients.find(c => c.id === this.currentCustomerId);
+                if (!customer) return;
+                const session = customer.sessions.find(s => s.id === sessionId);
+                if (!session) return;
+
+                const areas = typeof session.areas === 'string' ? session.areas : (session.areas || []).join('、');
+
+                document.getElementById('sessionModalContent').innerHTML = `
+                    <div class="questionnaire-section">
+                        <div class="questionnaire-section-title">基本情報</div>
+                        <div class="questionnaire-item"><strong>来店日:</strong> ${session.date}</div>
+                        <div class="questionnaire-item"><strong>メニュー:</strong> ${session.menu}</div>
+                        <div class="questionnaire-item"><strong>施術時間:</strong> ${session.duration}分</div>
+                    </div>
+                    <div class="questionnaire-section">
+                        <div class="questionnaire-section-title">施術内容</div>
+                        <div class="questionnaire-item"><strong>施術部位:</strong> ${areas || 'なし'}</div>
+                        <div class="questionnaire-item"><strong>圧感:</strong> ${session.pressure || '-'}</div>
+                    </div>
+                    ${session.notes ? `
+                    <div class="questionnaire-section">
+                        <div class="questionnaire-section-title">体の状態・気づき</div>
+                        <div class="questionnaire-item">${session.notes}</div>
+                    </div>` : ''}
+                    ${session.nextNotes ? `
+                    <div class="questionnaire-section">
+                        <div class="questionnaire-section-title">次回へのメモ</div>
+                        <div class="questionnaire-item">${session.nextNotes}</div>
+                    </div>` : ''}
+                    ${session.nextInterval ? `
+                    <div class="questionnaire-section">
+                        <div class="questionnaire-section-title">次回来店間隔</div>
+                        <div class="questionnaire-item">${session.nextInterval}</div>
+                    </div>` : ''}
+                `;
+
+                document.getElementById('sessionModal').classList.add('active');
+            },
+
+            closeSessionModal() {
+                document.getElementById('sessionModal').classList.remove('active');
             },
 
             // ユーティリティ
