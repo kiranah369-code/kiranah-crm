@@ -1141,11 +1141,72 @@
                         </select>
                     </div>
 
-                    <div class="form-group" style="margin-top: 24px; background: #fff8f0; border: 2px solid #f0c9a0; border-radius: 12px; padding: 16px;">
-                        <label style="color: #c8956c; font-weight: 700; font-size: 16px;">💴 お会計金額</label>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-                            <input type="number" id="sessionPrice" min="0" step="100" placeholder="0" style="font-size: 20px; font-weight: 700; color: #c8956c; text-align: right; padding: 10px 14px; border: 1px solid #f0c9a0; border-radius: 8px; width: 100%;">
-                            <span style="font-size: 18px; font-weight: 700; color: #c8956c; white-space: nowrap;">円</span>
+                    <!-- お会計セクション -->
+                    <div style="margin-top: 24px; background: #fff8f0; border: 2px solid #f0c9a0; border-radius: 14px; padding: 18px;">
+                        <div style="color: #c8956c; font-weight: 700; font-size: 16px; margin-bottom: 14px;">💴 お会計</div>
+
+                        <!-- 税込金額 -->
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                            <label style="font-size: 13px; color: #888; white-space: nowrap; min-width: 64px;">税込金額</label>
+                            <input type="number" id="sessionPrice" min="0" step="100" placeholder="0"
+                                oninput="app.updatePaymentCalc()"
+                                style="font-size: 22px; font-weight: 700; color: #c8956c; text-align: right; padding: 10px 12px; border: 1px solid #f0c9a0; border-radius: 8px; width: 100%;">
+                            <span style="font-size: 16px; font-weight: 700; color: #c8956c; white-space: nowrap;">円</span>
+                        </div>
+
+                        <!-- 支払い方法 -->
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: #888; margin-bottom: 8px;">支払い方法</div>
+                            <div style="display: flex; gap: 8px;">
+                                <label style="flex:1; text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-cash">
+                                    <input type="radio" name="paymentMethod" value="現金" onchange="app.updatePaymentCalc()" style="display:none;">
+                                    💵 現金
+                                </label>
+                                <label style="flex:1; text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-credit">
+                                    <input type="radio" name="paymentMethod" value="クレジット" onchange="app.updatePaymentCalc()" style="display:none;">
+                                    💳 クレジット
+                                </label>
+                                <label style="flex:1; text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;" id="lbl-smart">
+                                    <input type="radio" name="paymentMethod" value="スマート支払い" onchange="app.updatePaymentCalc()" style="display:none;">
+                                    📱 スマート
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- スマート支払い：カードブランド選択 -->
+                        <div id="smartBrandSection" style="display:none; margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: #888; margin-bottom: 8px;">カードブランド <span style="font-size:11px;">(手数料が変わります)</span></div>
+                            <div style="display: flex; gap: 8px;">
+                                <label style="flex:1; text-align:center; padding: 8px 4px; border: 2px solid #d4e8f0; border-radius: 8px; cursor:pointer; font-size: 12px; font-weight: 600;" id="lbl-vma">
+                                    <input type="radio" name="paymentBrand" value="VMA" onchange="app.updatePaymentCalc()" style="display:none;">
+                                    Visa / MC<br>/ Amex<br><span style="color:#6ca0b5; font-size:11px;">3.24%</span>
+                                </label>
+                                <label style="flex:1; text-align:center; padding: 8px 4px; border: 2px solid #d4e8f0; border-radius: 8px; cursor:pointer; font-size: 12px; font-weight: 600;" id="lbl-jd">
+                                    <input type="radio" name="paymentBrand" value="JD" onchange="app.updatePaymentCalc()" style="display:none;">
+                                    JCB /<br>Diners Club<br><span style="color:#6ca0b5; font-size:11px;">3.74%</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 計算結果 -->
+                        <div id="paymentCalcResult" style="display:none; background: #fff; border-radius: 10px; padding: 14px; border: 1px solid #f0c9a0; margin-top: 4px;">
+                            <div style="display:flex; justify-content:space-between; font-size:13px; color:#888; margin-bottom:6px;">
+                                <span>税抜金額</span>
+                                <span id="calcTaxExcluded">-</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:13px; color:#888; margin-bottom:6px;">
+                                <span>消費税（10%）</span>
+                                <span id="calcTax">-</span>
+                            </div>
+                            <div id="calcFeeRow" style="display:none; justify-content:space-between; font-size:13px; color:#e57373; margin-bottom:6px;">
+                                <span id="calcFeeLabel">決済手数料</span>
+                                <span id="calcFee">-</span>
+                            </div>
+                            <div style="border-top: 1px solid #f0d9d9; margin: 8px 0;"></div>
+                            <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:800; color:#c8956c;">
+                                <span>実受取額</span>
+                                <span id="calcNet">-</span>
+                            </div>
                         </div>
                     </div>
 
@@ -1307,6 +1368,18 @@
                     if (sessionSearchEl) sessionSearchEl.value = '';
                     this.renderCustomerDetail();
                 } else if (screenName === 'session') {
+                    // 新規追加のときだけお会計フォームをリセット
+                    if (!this.currentSessionId) {
+                        document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
+                        document.querySelectorAll('input[name="paymentBrand"]').forEach(r => r.checked = false);
+                        document.getElementById('sessionPrice').value = '';
+                        document.getElementById('smartBrandSection').style.display = 'none';
+                        document.getElementById('paymentCalcResult').style.display = 'none';
+                        ['cash','credit','smart'].forEach(id => {
+                            const lbl = document.getElementById('lbl-' + id);
+                            if (lbl) { lbl.style.background=''; lbl.style.borderColor='#f0c9a0'; lbl.style.color=''; }
+                        });
+                    }
                     this.renderSessionHistory();
                 } else if (screenName === 'analytics') {
                     this.renderAnalytics();
@@ -1836,7 +1909,10 @@
                     <div class="session-card">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                             <div class="session-date">${session.date}</div>
-                            ${session.price ? `<div style="font-weight:700;color:#c8956c;font-size:15px;">¥${session.price.toLocaleString()}</div>` : ''}
+                            <div style="text-align:right;">
+                                ${session.price ? `<div style="font-weight:700;color:#c8956c;font-size:15px;">¥${session.price.toLocaleString()}</div>` : ''}
+                                ${session.paymentMethod ? `<div style="font-size:11px;color:#aaa;">${session.paymentMethod}</div>` : ''}
+                            </div>
                         </div>
                         <div class="session-menu">${session.menu} (${session.duration}分)</div>
                         <div class="session-detail">施術部位: ${typeof session.areas === 'string' ? session.areas : (session.areas || []).join('、')}</div>
@@ -1866,7 +1942,9 @@
                     notes: document.getElementById('sessionNotes').value,
                     nextNotes: document.getElementById('sessionNextNotes').value,
                     nextInterval: document.getElementById('sessionNextInterval').value,
-                    price: parseInt(document.getElementById('sessionPrice').value) || 0
+                    price: parseInt(document.getElementById('sessionPrice').value) || 0,
+                    paymentMethod: (document.querySelector('input[name="paymentMethod"]:checked') || {}).value || '',
+                    paymentBrand: (document.querySelector('input[name="paymentBrand"]:checked') || {}).value || ''
                 };
 
                 if (this.currentSessionId) {
@@ -1902,6 +1980,19 @@
                 document.getElementById('sessionNextNotes').value = session.nextNotes;
                 document.getElementById('sessionNextInterval').value = session.nextInterval;
                 document.getElementById('sessionPrice').value = session.price || '';
+
+                // 支払い方法の復元
+                document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
+                document.querySelectorAll('input[name="paymentBrand"]').forEach(r => r.checked = false);
+                if (session.paymentMethod) {
+                    const el = document.querySelector(`input[name="paymentMethod"][value="${session.paymentMethod}"]`);
+                    if (el) el.checked = true;
+                }
+                if (session.paymentBrand) {
+                    const el = document.querySelector(`input[name="paymentBrand"][value="${session.paymentBrand}"]`);
+                    if (el) el.checked = true;
+                }
+                this.updatePaymentCalc();
 
                 this.showScreen('session');
             },
@@ -2051,7 +2142,13 @@
                         <div class="questionnaire-item"><strong>来店日:</strong> ${session.date}</div>
                         <div class="questionnaire-item"><strong>メニュー:</strong> ${session.menu}</div>
                         <div class="questionnaire-item"><strong>施術時間:</strong> ${session.duration}分</div>
-                        ${session.price ? `<div class="questionnaire-item"><strong>💴 お会計:</strong> <span style="color:#c8956c;font-weight:700;">¥${session.price.toLocaleString()}</span></div>` : ''}
+                        ${session.price ? `<div class="questionnaire-item"><strong>💴 お会計（税込）:</strong> <span style="color:#c8956c;font-weight:700;">¥${session.price.toLocaleString()}</span></div>` : ''}
+                        ${session.price ? `<div class="questionnaire-item" style="padding-left:8px; border-left:3px solid #f0d9d9;">
+                            <div style="font-size:12px; color:#aaa; margin-bottom:2px;">税抜: ¥${Math.round(session.price/1.1).toLocaleString()} ／ 消費税: ¥${(session.price - Math.round(session.price/1.1)).toLocaleString()}</div>
+                            ${session.paymentMethod ? `<div style="font-size:13px; color:#888;">支払い: ${session.paymentMethod}${session.paymentBrand === 'VMA' ? '（Visa/MC/Amex・3.24%）' : session.paymentBrand === 'JD' ? '（JCB/Diners・3.74%）' : session.paymentMethod === 'クレジット' ? '（2.50%）' : ''}
+                            ${session.paymentMethod !== '現金' && session.price ? `<br>手数料: ¥${Math.round(session.price * (session.paymentBrand === 'JD' ? 3.74 : session.paymentBrand === 'VMA' ? 3.24 : session.paymentMethod === 'クレジット' ? 2.5 : 0) / 100).toLocaleString()} ／ 実受取: <strong style="color:#c8956c;">¥${(session.price - Math.round(session.price * (session.paymentBrand === 'JD' ? 3.74 : session.paymentBrand === 'VMA' ? 3.24 : session.paymentMethod === 'クレジット' ? 2.5 : 0) / 100)).toLocaleString()}</strong>` : ''}
+                            </div>` : ''}
+                        </div>` : ''}
                     </div>
                     <div class="questionnaire-section">
                         <div class="questionnaire-section-title">施術内容</div>
@@ -2289,6 +2386,72 @@
                     <div style="text-align:center;color:#aaa;padding:16px;">3ヶ月以上来店のないお客様はいません 🎉</div>
                     `}
                 `;
+            },
+
+            // お会計計算
+            updatePaymentCalc() {
+                const price = parseInt(document.getElementById('sessionPrice').value) || 0;
+                const method = (document.querySelector('input[name="paymentMethod"]:checked') || {}).value || '';
+                const brand = (document.querySelector('input[name="paymentBrand"]:checked') || {}).value || '';
+
+                // 支払いラベルのハイライト
+                ['cash','credit','smart'].forEach(id => {
+                    const lbl = document.getElementById('lbl-' + id);
+                    if (lbl) {
+                        const val = lbl.querySelector('input').value;
+                        lbl.style.background = method === val ? '#fff0e6' : '';
+                        lbl.style.borderColor = method === val ? '#c8956c' : '#f0c9a0';
+                        lbl.style.color = method === val ? '#c8956c' : '#555';
+                    }
+                });
+                ['vma','jd'].forEach(id => {
+                    const lbl = document.getElementById('lbl-' + id);
+                    if (lbl) {
+                        const val = lbl.querySelector('input').value;
+                        lbl.style.background = brand === val ? '#e8f4f8' : '';
+                        lbl.style.borderColor = brand === val ? '#6ca0b5' : '#d4e8f0';
+                        lbl.style.color = brand === val ? '#6ca0b5' : '#555';
+                    }
+                });
+
+                // スマートブランド選択を表示/非表示
+                const smartSection = document.getElementById('smartBrandSection');
+                smartSection.style.display = method === 'スマート支払い' ? 'block' : 'none';
+
+                // 計算
+                const result = document.getElementById('paymentCalcResult');
+                if (!price || !method) { result.style.display = 'none'; return; }
+                if (method === 'スマート支払い' && !brand) { result.style.display = 'none'; return; }
+
+                const taxExcluded = Math.round(price / 1.1);
+                const tax = price - taxExcluded;
+
+                let feeRate = 0, feeLabel = '';
+                if (method === 'クレジット') {
+                    feeRate = 2.5; feeLabel = '決済手数料（2.50%）';
+                } else if (method === 'スマート支払い' && brand === 'VMA') {
+                    feeRate = 3.24; feeLabel = '決済手数料（3.24%）';
+                } else if (method === 'スマート支払い' && brand === 'JD') {
+                    feeRate = 3.74; feeLabel = '決済手数料（3.74%）';
+                }
+
+                const fee = Math.round(price * feeRate / 100);
+                const net = price - fee;
+
+                document.getElementById('calcTaxExcluded').textContent = '¥' + taxExcluded.toLocaleString();
+                document.getElementById('calcTax').textContent = '¥' + tax.toLocaleString();
+                document.getElementById('calcNet').textContent = '¥' + net.toLocaleString();
+
+                const feeRow = document.getElementById('calcFeeRow');
+                if (fee > 0) {
+                    feeRow.style.display = 'flex';
+                    document.getElementById('calcFeeLabel').textContent = feeLabel;
+                    document.getElementById('calcFee').textContent = '－¥' + fee.toLocaleString();
+                } else {
+                    feeRow.style.display = 'none';
+                }
+
+                result.style.display = 'block';
             },
 
             // ユーティリティ
