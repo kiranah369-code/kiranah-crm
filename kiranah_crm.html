@@ -1541,6 +1541,14 @@
             },
 
             // 顧客一覧
+            // ひらがな⇔カタカナ正規化（どちらで検索しても一致させる）
+            normalizeKana(str) {
+                if (!str) return '';
+                return str
+                    .replace(/[\u3041-\u3096]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60))
+                    .toLowerCase();
+            },
+
             renderCustomerList(filter = '') {
                 const list = document.getElementById('customerList');
 
@@ -1551,8 +1559,12 @@
                     return;
                 }
 
+                const q = this.normalizeKana(filter);
                 let filtered = this.clients.filter(c =>
-                    c.name.includes(filter) || c.phone.includes(filter)
+                    c.name.includes(filter) ||
+                    c.phone.includes(filter) ||
+                    this.normalizeKana(c.furigana).includes(q) ||
+                    this.normalizeKana(c.name).includes(q)
                 );
 
                 if (filtered.length === 0) {
