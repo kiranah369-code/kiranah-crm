@@ -2235,7 +2235,12 @@
                     const ym = toYM(s); return ym && ym.y === lastYear && ym.m === lastMonth;
                 });
 
+                const today = now.toISOString().split('T')[0];
+                const todaySessions = allSessions.filter(s => s.date === today);
+
                 const sum = (sessions) => sessions.reduce((a, s) => a + (s.price || 0), 0);
+                const todayTotal = sum(todaySessions);
+                const todayCount = todaySessions.length;
                 const thisMonthTotal = sum(thisMonthSessions);
                 const lastMonthTotal = sum(lastMonthSessions);
 
@@ -2304,6 +2309,11 @@
 
                 container.innerHTML = `
                     <div class="analytics-grid">
+                        <div class="analytics-card analytics-card-wide" style="background: linear-gradient(135deg, #fff0e6, #fdf5f0); border: 2px solid #f0c9a0;">
+                            <div class="analytics-label" style="color:#c8956c;">📅 本日の売上（${today}）</div>
+                            <div class="analytics-value" style="font-size:32px;">¥${todayTotal.toLocaleString()}</div>
+                            <div class="analytics-sub">${todayCount > 0 ? `来店 ${todayCount}件` : 'まだ記録がありません'}</div>
+                        </div>
                         <div class="analytics-card">
                             <div class="analytics-label">今月の売上</div>
                             <div class="analytics-value">¥${thisMonthTotal.toLocaleString()}</div>
