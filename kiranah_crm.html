@@ -736,6 +736,114 @@
         .empty-state-text {
             font-size: 16px;
         }
+
+        /* 分析ダッシュボード */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .analytics-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            text-align: center;
+        }
+
+        .analytics-card-wide {
+            grid-column: 1 / -1;
+        }
+
+        .analytics-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .analytics-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #c8956c;
+        }
+
+        .analytics-sub {
+            font-size: 12px;
+            color: #bbb;
+            margin-top: 4px;
+        }
+
+        .analytics-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #c8956c;
+            margin: 20px 0 12px 0;
+            border-left: 4px solid #c8956c;
+            padding-left: 10px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 120px;
+            padding: 0 4px;
+        }
+
+        .bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar-rect {
+            width: 100%;
+            background: linear-gradient(to top, #d4a5a5, #c8956c);
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            transition: height 0.3s;
+        }
+
+        .bar-label {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .bar-amount {
+            font-size: 10px;
+            color: #c8956c;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .dormant-item {
+            background: #fff;
+            border: 1px solid #f0d9d9;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-rank-item {
+            background: #fff;
+            border: 1px solid #f0d9d9;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -750,8 +858,11 @@
             <!-- 画面①：顧客一覧 -->
             <div class="screen active" id="screen-home">
                 <div class="content-inner">
-                    <button class="new-customer-btn" onclick="app.showScreen('register')">＋ 新規顧客登録</button>
-                    <input type="text" class="search-bar" id="searchInput" placeholder="名前・電話番号で検索...">
+                    <div style="display:flex; gap:10px; margin-bottom:0;">
+                        <button class="new-customer-btn" style="flex:2; margin-bottom:0;" onclick="app.showScreen('register')">＋ 新規顧客登録</button>
+                        <button class="new-customer-btn" style="flex:1; margin-bottom:0; background:linear-gradient(135deg,#a5c4d4,#6ca0b5);" onclick="app.showScreen('analytics')">📊 売上分析</button>
+                    </div>
+                    <input type="text" class="search-bar" id="searchInput" placeholder="名前・電話番号で検索..." style="margin-top:14px;">
                     <div class="customer-list" id="customerList"></div>
                 </div>
             </div>
@@ -1027,6 +1138,14 @@
                         </select>
                     </div>
 
+                    <div class="form-group" style="margin-top: 24px; background: #fff8f0; border: 2px solid #f0c9a0; border-radius: 12px; padding: 16px;">
+                        <label style="color: #c8956c; font-weight: 700; font-size: 16px;">💴 お会計金額</label>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                            <input type="number" id="sessionPrice" min="0" step="100" placeholder="0" style="font-size: 20px; font-weight: 700; color: #c8956c; text-align: right; padding: 10px 14px; border: 1px solid #f0c9a0; border-radius: 8px; width: 100%;">
+                            <span style="font-size: 18px; font-weight: 700; color: #c8956c; white-space: nowrap;">円</span>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn-primary" style="width: 100%; padding: 16px; font-size: 18px; margin-top: 30px;">保存する</button>
                 </form>
 
@@ -1035,6 +1154,12 @@
                     <h3 style="color: #c8956c; margin-bottom: 16px;">📅 過去の来店履歴</h3>
                     <div id="sessionHistoryList"></div>
                 </div>
+            </div>
+
+            <!-- 画面⑤：売上分析 -->
+            <div class="screen" id="screen-analytics">
+                <button class="btn-back" onclick="app.showScreen('home')">← 戻る</button>
+                <div id="analyticsContent" style="padding-bottom: 40px;"></div>
             </div>
         </div>
     </div>
@@ -1146,7 +1271,8 @@
                     'home': 'カルテ管理',
                     'register': 'はじめにお聞かせください',
                     'detail': 'カルテ',
-                    'session': '施術記録'
+                    'session': '施術記録',
+                    'analytics': '売上分析'
                 };
                 document.getElementById('headerTitle').textContent = titles[screenName] || 'KIRANAH';
 
@@ -1160,6 +1286,8 @@
                     this.renderCustomerDetail();
                 } else if (screenName === 'session') {
                     this.renderSessionHistory();
+                } else if (screenName === 'analytics') {
+                    this.renderAnalytics();
                 } else if (screenName === 'register') {
                     document.getElementById('registerForm').reset();
                     this.clearAllBodyMaps();
@@ -1684,7 +1812,10 @@
 
                 list.innerHTML = sessions.slice().reverse().map((session, index) => `
                     <div class="session-card">
-                        <div class="session-date">${session.date}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                            <div class="session-date">${session.date}</div>
+                            ${session.price ? `<div style="font-weight:700;color:#c8956c;font-size:15px;">¥${session.price.toLocaleString()}</div>` : ''}
+                        </div>
                         <div class="session-menu">${session.menu} (${session.duration}分)</div>
                         <div class="session-detail">施術部位: ${typeof session.areas === 'string' ? session.areas : (session.areas || []).join('、')}</div>
                         <div class="session-actions">
@@ -1712,7 +1843,8 @@
                     pressure: (document.querySelector('input[name="pressure"]:checked') || {}).value || '',
                     notes: document.getElementById('sessionNotes').value,
                     nextNotes: document.getElementById('sessionNextNotes').value,
-                    nextInterval: document.getElementById('sessionNextInterval').value
+                    nextInterval: document.getElementById('sessionNextInterval').value,
+                    price: parseInt(document.getElementById('sessionPrice').value) || 0
                 };
 
                 if (this.currentSessionId) {
@@ -1747,6 +1879,7 @@
                 document.getElementById('sessionNotes').value = session.notes;
                 document.getElementById('sessionNextNotes').value = session.nextNotes;
                 document.getElementById('sessionNextInterval').value = session.nextInterval;
+                document.getElementById('sessionPrice').value = session.price || '';
 
                 this.showScreen('session');
             },
@@ -1896,6 +2029,7 @@
                         <div class="questionnaire-item"><strong>来店日:</strong> ${session.date}</div>
                         <div class="questionnaire-item"><strong>メニュー:</strong> ${session.menu}</div>
                         <div class="questionnaire-item"><strong>施術時間:</strong> ${session.duration}分</div>
+                        ${session.price ? `<div class="questionnaire-item"><strong>💴 お会計:</strong> <span style="color:#c8956c;font-weight:700;">¥${session.price.toLocaleString()}</span></div>` : ''}
                     </div>
                     <div class="questionnaire-section">
                         <div class="questionnaire-section-title">施術内容</div>
@@ -1952,6 +2086,162 @@
                         ${session.pressure ? `<div style="font-size:13px; color:#666;">💆 圧感：${session.pressure}</div>` : ''}
                     </div>
                 `).join('');
+            },
+
+            // 売上分析
+            renderAnalytics() {
+                const container = document.getElementById('analyticsContent');
+
+                // 全セッションを収集
+                const allSessions = [];
+                this.clients.forEach(c => {
+                    (c.sessions || []).forEach(s => {
+                        allSessions.push({ ...s, clientName: c.name, clientId: c.id });
+                    });
+                });
+
+                // 今月・先月の範囲
+                const now = new Date();
+                const thisYear = now.getFullYear();
+                const thisMonth = now.getMonth() + 1;
+                const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const lastYear = lastMonthDate.getFullYear();
+                const lastMonth = lastMonthDate.getMonth() + 1;
+
+                const toYM = (s) => {
+                    const d = s.date ? s.date.split('-') : [];
+                    return d.length >= 2 ? { y: parseInt(d[0]), m: parseInt(d[1]) } : null;
+                };
+
+                const thisMonthSessions = allSessions.filter(s => {
+                    const ym = toYM(s); return ym && ym.y === thisYear && ym.m === thisMonth;
+                });
+                const lastMonthSessions = allSessions.filter(s => {
+                    const ym = toYM(s); return ym && ym.y === lastYear && ym.m === lastMonth;
+                });
+
+                const sum = (sessions) => sessions.reduce((a, s) => a + (s.price || 0), 0);
+                const thisMonthTotal = sum(thisMonthSessions);
+                const lastMonthTotal = sum(lastMonthSessions);
+
+                // 過去6ヶ月の月別売上
+                const monthlyData = [];
+                for (let i = 5; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const y = d.getFullYear(), m = d.getMonth() + 1;
+                    const sessions = allSessions.filter(s => { const ym = toYM(s); return ym && ym.y === y && ym.m === m; });
+                    monthlyData.push({ label: `${m}月`, total: sum(sessions), count: sessions.length });
+                }
+
+                // 平均客単価（金額が入っているセッションのみ）
+                const pricedSessions = allSessions.filter(s => s.price > 0);
+                const avgPrice = pricedSessions.length > 0
+                    ? Math.round(pricedSessions.reduce((a, s) => a + s.price, 0) / pricedSessions.length)
+                    : 0;
+
+                // 今月の来店数・平均
+                const thisMonthCount = thisMonthSessions.length;
+                const thisMonthAvg = thisMonthCount > 0 ? Math.round(thisMonthTotal / thisMonthCount) : 0;
+
+                // リピート率（2回以上来店した顧客の割合）
+                const repeatClients = this.clients.filter(c => (c.sessions || []).length >= 2).length;
+                const totalClients = this.clients.length;
+                const repeatRate = totalClients > 0 ? Math.round((repeatClients / totalClients) * 100) : 0;
+
+                // よく選ばれるメニュー
+                const menuCount = {};
+                allSessions.forEach(s => {
+                    if (s.menu) menuCount[s.menu] = (menuCount[s.menu] || 0) + 1;
+                });
+                const menuRanking = Object.entries(menuCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                // 久しぶりのお客様（3ヶ月以上来店なし）
+                const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()).toISOString().split('T')[0];
+                const dormantClients = this.clients
+                    .filter(c => (c.sessions || []).length > 0)
+                    .map(c => {
+                        const last = [...(c.sessions || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+                        return { name: c.name, id: c.id, lastDate: last ? last.date : c.firstVisit };
+                    })
+                    .filter(c => c.lastDate < threeMonthsAgo)
+                    .sort((a, b) => a.lastDate.localeCompare(b.lastDate))
+                    .slice(0, 5);
+
+                // 月比較矢印
+                const diff = thisMonthTotal - lastMonthTotal;
+                const diffStr = diff > 0 ? `▲ ¥${diff.toLocaleString()}` : diff < 0 ? `▼ ¥${Math.abs(diff).toLocaleString()}` : '±0';
+                const diffColor = diff > 0 ? '#4caf50' : diff < 0 ? '#e57373' : '#aaa';
+
+                // バーグラフ
+                const maxBar = Math.max(...monthlyData.map(d => d.total), 1);
+                const barsHtml = monthlyData.map(d => {
+                    const h = Math.round((d.total / maxBar) * 100);
+                    return `
+                        <div class="bar-col">
+                            ${d.total > 0 ? `<div class="bar-amount">¥${(d.total / 10000).toFixed(1)}万</div>` : '<div class="bar-amount" style="color:#ddd;">-</div>'}
+                            <div class="bar-rect" style="height:${h}px;"></div>
+                            <div class="bar-label">${d.label}<br><span style="color:#bbb;">${d.count}件</span></div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-label">今月の売上</div>
+                            <div class="analytics-value">¥${thisMonthTotal.toLocaleString()}</div>
+                            <div class="analytics-sub" style="color:${diffColor};">${diffStr} 先月比</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-label">今月の来店数</div>
+                            <div class="analytics-value">${thisMonthCount}<span style="font-size:16px;font-weight:400;">件</span></div>
+                            <div class="analytics-sub">平均 ¥${thisMonthAvg.toLocaleString()}</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-label">平均客単価</div>
+                            <div class="analytics-value">¥${avgPrice.toLocaleString()}</div>
+                            <div class="analytics-sub">全期間・金額記入分</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-label">リピート率</div>
+                            <div class="analytics-value">${repeatRate}<span style="font-size:16px;font-weight:400;">%</span></div>
+                            <div class="analytics-sub">2回以上来店 ${repeatClients}名 / ${totalClients}名</div>
+                        </div>
+                        <div class="analytics-card analytics-card-wide">
+                            <div class="analytics-label" style="text-align:left;margin-bottom:12px;">📊 月別売上（過去6ヶ月）</div>
+                            <div class="bar-chart">${barsHtml}</div>
+                        </div>
+                    </div>
+
+                    ${menuRanking.length > 0 ? `
+                    <div class="analytics-section-title">🏆 よく選ばれるメニュー</div>
+                    ${menuRanking.map(([menu, count], i) => `
+                        <div class="menu-rank-item">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:18px;font-weight:800;color:${i === 0 ? '#f5a623' : i === 1 ? '#aaa' : i === 2 ? '#c8956c' : '#ccc'};">${i + 1}</span>
+                                <span style="font-size:14px;color:#333;">${menu}</span>
+                            </div>
+                            <span style="font-size:14px;font-weight:700;color:#c8956c;">${count}件</span>
+                        </div>
+                    `).join('')}` : ''}
+
+                    ${dormantClients.length > 0 ? `
+                    <div class="analytics-section-title">😴 久しぶりのお客様（3ヶ月以上）</div>
+                    ${dormantClients.map(c => `
+                        <div class="dormant-item" onclick="app.selectCustomer('${c.id}')" style="cursor:pointer;">
+                            <div>
+                                <div style="font-size:15px;font-weight:700;color:#333;">${c.name}</div>
+                                <div style="font-size:12px;color:#aaa;">最終来店：${c.lastDate}</div>
+                            </div>
+                            <span style="font-size:12px;color:#c8956c;">→ カルテへ</span>
+                        </div>
+                    `).join('')}` : `
+                    <div class="analytics-section-title">😴 久しぶりのお客様</div>
+                    <div style="text-align:center;color:#aaa;padding:16px;">3ヶ月以上来店のないお客様はいません 🎉</div>
+                    `}
+                `;
             },
 
             // ユーティリティ
