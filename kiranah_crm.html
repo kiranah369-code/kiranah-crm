@@ -871,6 +871,7 @@
             <div class="screen" id="screen-register">
                 <button class="btn-back" onclick="app.showScreen('home')">← 戻る</button>
                 <form id="registerForm" onsubmit="app.saveNewCustomer(event)">
+                    <p style="font-size:13px; color:#aaa; margin-bottom:16px;">* お名前のみ必須です。その他の項目は後から追加できます。</p>
                     <!-- 基本情報 -->
                     <h3 style="margin-bottom: 16px; color: #c8956c;">基本情報</h3>
                     <div class="form-row">
@@ -879,8 +880,8 @@
                             <input type="text" id="name" required>
                         </div>
                         <div class="form-group">
-                            <label>ふりがな*</label>
-                            <input type="text" id="furigana" required>
+                            <label>ふりがな</label>
+                            <input type="text" id="furigana">
                         </div>
                     </div>
                     <div class="form-row">
@@ -903,8 +904,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>電話番号*</label>
-                            <input type="tel" id="phone" required>
+                            <label>電話番号</label>
+                            <input type="tel" id="phone">
                         </div>
                         <div class="form-group">
                             <label>メールアドレス</label>
@@ -912,8 +913,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>初回来店日*</label>
-                        <input type="date" id="firstVisit" required>
+                        <label>初回来店日</label>
+                        <input type="date" id="firstVisit">
                     </div>
                     <div class="form-group">
                         <label>紹介元</label>
@@ -1019,7 +1020,7 @@
                     </div>
                     <div class="form-group" style="margin-top: 16px;">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="acknowledged" required>
+                            <input type="checkbox" id="acknowledged">
                             <label for="acknowledged">上記の内容を確認し、同意します</label>
                         </div>
                     </div>
@@ -1036,8 +1037,8 @@
 
                     <!-- 受領日 -->
                     <div class="form-group">
-                        <label>受領日*</label>
-                        <input type="date" id="receiptDate" required>
+                        <label>受領日</label>
+                        <input type="date" id="receiptDate">
                     </div>
 
                     <button type="submit" class="btn-primary" style="width: 100%; padding: 16px; font-size: 18px; margin-top: 30px;">登録する</button>
@@ -1072,8 +1073,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex: 2;">
-                            <label>メニュー*（タップ・ペンで入力）</label>
-                            <input type="text" id="sessionMenu" list="menuOptions" placeholder="メニューを入力または選択" required autocomplete="off" style="font-size:17px; padding:12px;">
+                            <label>メニュー（タップ・ペンで入力）</label>
+                            <input type="text" id="sessionMenu" list="menuOptions" placeholder="メニューを入力または選択" autocomplete="off" style="font-size:17px; padding:12px;">
                             <datalist id="menuOptions">
                                 <option value="ボディケア60分">
                                 <option value="ボディケア90分">
@@ -1458,10 +1459,18 @@
                 document.getElementById('age').value = age >= 0 ? age : '';
             },
 
+            toggleConcernOther(checkbox) {
+                const textInput = document.getElementById('concernOtherText');
+                if (textInput) {
+                    textInput.style.display = checkbox.checked ? 'block' : 'none';
+                    if (!checkbox.checked) textInput.value = '';
+                }
+            },
+
             // お悩み・施術遠慮
             setupConcernsAndCautions() {
                 const concerns = ['肩こり', '首こり', '腰痛', '背中の張り', '頭痛', '足のむくみ',
-                                '冷え性', '疲れやすい', '不眠', 'ストレス', '全身疲労', 'その他'];
+                                '冷え性', '疲れやすい', '不眠', '睡眠', 'ストレス', '全身疲労', 'その他'];
                 const cautionsArray = ['心臓病', '糖尿病', '血栓症', '動脈瘤', '静脈瘤', '高血圧・低血圧',
                                      '妊娠中（その可能性含む）', '3ヶ月以内に手術を受けた', '悪性腫瘍（がん）',
                                      '骨粗鬆症', '皮膚疾患・炎症・傷がある', '発熱中・体調不良',
@@ -1472,12 +1481,23 @@
                 const concernsGroup = document.getElementById('concernsGroup');
                 concerns.forEach((concern, i) => {
                     const id = 'concern-' + i;
-                    concernsGroup.innerHTML += `
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="${id}" value="${concern}" class="concern-check">
-                            <label for="${id}">${concern}</label>
-                        </div>
-                    `;
+                    if (concern === 'その他') {
+                        concernsGroup.innerHTML += `
+                            <div class="checkbox-item" style="flex-basis:100%; width:100%;">
+                                <input type="checkbox" id="${id}" value="その他" class="concern-check" onchange="app.toggleConcernOther(this)">
+                                <label for="${id}">その他</label>
+                                <input type="text" id="concernOtherText" placeholder="具体的にご記入ください"
+                                    style="display:none; margin-left:8px; margin-top:6px; width:100%; padding:8px 10px; border:1px solid #f0c9a0; border-radius:8px; font-size:14px;">
+                            </div>
+                        `;
+                    } else {
+                        concernsGroup.innerHTML += `
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="${id}" value="${concern}" class="concern-check">
+                                <label for="${id}">${concern}</label>
+                            </div>
+                        `;
+                    }
                 });
 
                 const cautionsGroup = document.getElementById('cautionsGroup');
@@ -1804,7 +1824,13 @@
             saveNewCustomer(event) {
                 event.preventDefault();
 
-                const concerns = Array.from(document.querySelectorAll('.concern-check:checked')).map(el => el.value);
+                const concerns = Array.from(document.querySelectorAll('.concern-check:checked')).map(el => {
+                    if (el.value === 'その他') {
+                        const text = (document.getElementById('concernOtherText') || {}).value || '';
+                        return text ? `その他（${text}）` : 'その他';
+                    }
+                    return el.value;
+                });
                 const cautions = Array.from(document.querySelectorAll('.caution-check:checked')).map(el => el.value);
 
                 if (this.signaturePad.isEmpty()) {
@@ -1999,7 +2025,7 @@
 
                     <div class="questionnaire-section">
                         <div class="questionnaire-section-title">お悩みチェック</div>
-                        <div class="questionnaire-item">${customer.concerns.join('、') || 'なし'}</div>
+                        <div class="questionnaire-item">${(customer.concerns || []).join('、') || 'なし'}</div>
                     </div>
 
                     <div class="questionnaire-section">
