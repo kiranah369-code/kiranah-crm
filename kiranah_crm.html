@@ -1169,18 +1169,22 @@
                         <!-- 支払い方法 -->
                         <div>
                             <div style="font-size: 13px; color: #888; margin-bottom: 8px;">支払い方法</div>
-                            <div style="display: flex; gap: 8px;">
-                                <label style="flex:1; text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-cash">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-cash">
                                     <input type="radio" name="paymentMethod" value="現金" onchange="app.updatePaymentCalc()" style="display:none;">
                                     💵 現金
                                 </label>
-                                <label style="flex:1; text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-credit">
+                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-credit">
                                     <input type="radio" name="paymentMethod" value="クレジット" onchange="app.updatePaymentCalc()" style="display:none;">
                                     💳 クレジット
                                 </label>
-                                <label style="flex:1; text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;" id="lbl-smart">
+                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;" id="lbl-smart">
                                     <input type="radio" name="paymentMethod" value="スマート支払い" onchange="app.updatePaymentCalc()" style="display:none;">
                                     📱 スマート
+                                </label>
+                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;" id="lbl-point">
+                                    <input type="radio" name="paymentMethod" value="ポイント支払い" onchange="app.updatePaymentCalc()" style="display:none;">
+                                    ⭐ ポイント
                                 </label>
                             </div>
                         </div>
@@ -1349,7 +1353,7 @@
                         document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
                         document.getElementById('sessionPrice').value = '';
                         document.getElementById('paymentCalcResult').style.display = 'none';
-                        ['cash','credit','smart'].forEach(id => {
+                        ['cash','credit','smart','point'].forEach(id => {
                             const lbl = document.getElementById('lbl-' + id);
                             if (lbl) { lbl.style.background=''; lbl.style.borderColor='#f0c9a0'; lbl.style.color=''; }
                         });
@@ -2361,7 +2365,7 @@
                 const method = (document.querySelector('input[name="paymentMethod"]:checked') || {}).value || '';
 
                 // 支払いラベルのハイライト
-                ['cash','credit','smart'].forEach(id => {
+                ['cash','credit','smart','point'].forEach(id => {
                     const lbl = document.getElementById('lbl-' + id);
                     if (lbl) {
                         const val = lbl.querySelector('input').value;
