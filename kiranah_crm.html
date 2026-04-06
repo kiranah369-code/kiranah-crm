@@ -1186,26 +1186,65 @@
                             </div>
                         </div>
 
-                        <!-- 支払い方法 -->
+                        <!-- 支払い方法（複数選択可） -->
                         <div>
-                            <div style="font-size: 13px; color: #888; margin-bottom: 8px;">支払い方法</div>
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-cash">
-                                    <input type="radio" name="paymentMethod" value="現金" onchange="app.updatePaymentCalc()" style="display:none;">
-                                    💵 現金
-                                </label>
-                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" id="lbl-credit">
-                                    <input type="radio" name="paymentMethod" value="クレジット" onchange="app.updatePaymentCalc()" style="display:none;">
-                                    💳 クレジット
-                                </label>
-                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;" id="lbl-smart">
-                                    <input type="radio" name="paymentMethod" value="スマート支払い" onchange="app.updatePaymentCalc()" style="display:none;">
-                                    📱 スマート
-                                </label>
-                                <label style="flex:1; min-width: calc(50% - 4px); text-align:center; padding: 10px 6px; border: 2px solid #f0c9a0; border-radius: 8px; cursor:pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;" id="lbl-point">
-                                    <input type="radio" name="paymentMethod" value="ポイント支払い" onchange="app.updatePaymentCalc()" style="display:none;">
-                                    ⭐ ポイント
-                                </label>
+                            <div style="font-size: 13px; color: #888; margin-bottom: 8px;">支払い方法 <span style="font-size:11px;">（複数選択可）</span></div>
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <div id="pm-row-cash" class="pm-row">
+                                    <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:2px solid #f0c9a0; border-radius:8px; cursor:pointer; transition:all 0.2s;" id="lbl-cash">
+                                        <input type="checkbox" name="paymentMethod" value="現金" onchange="app.updatePaymentCalc()" style="width:18px;height:18px;accent-color:#c8956c;">
+                                        <span style="font-size:14px; font-weight:600;">💵 現金</span>
+                                    </label>
+                                    <div id="amt-cash" style="display:none; margin-top:4px; display:none; align-items:center; gap:6px; padding:0 4px;">
+                                        <input type="number" id="sessionPriceCash" min="0" step="100" placeholder="0" oninput="app.updatePaymentCalc()"
+                                            style="flex:1; font-size:16px; font-weight:700; color:#c8956c; text-align:right; padding:8px 10px; border:1px solid #f0c9a0; border-radius:8px;">
+                                        <span style="font-size:14px; color:#c8956c; font-weight:600;">円</span>
+                                    </div>
+                                </div>
+                                <div id="pm-row-credit" class="pm-row">
+                                    <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:2px solid #f0c9a0; border-radius:8px; cursor:pointer; transition:all 0.2s;" id="lbl-credit">
+                                        <input type="checkbox" name="paymentMethod" value="クレジット" onchange="app.updatePaymentCalc()" style="width:18px;height:18px;accent-color:#c8956c;">
+                                        <span style="font-size:14px; font-weight:600;">💳 クレジット</span>
+                                    </label>
+                                    <div id="amt-credit" style="display:none; align-items:center; gap:6px; padding:0 4px;">
+                                        <input type="number" id="sessionPriceCredit" min="0" step="100" placeholder="0" oninput="app.updatePaymentCalc()"
+                                            style="flex:1; font-size:16px; font-weight:700; color:#c8956c; text-align:right; padding:8px 10px; border:1px solid #f0c9a0; border-radius:8px;">
+                                        <span style="font-size:14px; color:#c8956c; font-weight:600;">円</span>
+                                    </div>
+                                </div>
+                                <div id="pm-row-smart" class="pm-row">
+                                    <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:2px solid #f0c9a0; border-radius:8px; cursor:pointer; transition:all 0.2s;" id="lbl-smart">
+                                        <input type="checkbox" name="paymentMethod" value="スマート支払い" onchange="app.updatePaymentCalc()" style="width:18px;height:18px;accent-color:#c8956c;">
+                                        <span style="font-size:14px; font-weight:600;">📱 スマート</span>
+                                    </label>
+                                    <div id="amt-smart" style="display:none; align-items:center; gap:6px; padding:0 4px;">
+                                        <input type="number" id="sessionPriceSmart" min="0" step="100" placeholder="0" oninput="app.updatePaymentCalc()"
+                                            style="flex:1; font-size:16px; font-weight:700; color:#c8956c; text-align:right; padding:8px 10px; border:1px solid #f0c9a0; border-radius:8px;">
+                                        <span style="font-size:14px; color:#c8956c; font-weight:600;">円</span>
+                                    </div>
+                                </div>
+                                <div id="pm-row-point" class="pm-row">
+                                    <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:2px solid #f0c9a0; border-radius:8px; cursor:pointer; transition:all 0.2s;" id="lbl-point">
+                                        <input type="checkbox" name="paymentMethod" value="ポイント支払い" onchange="app.updatePaymentCalc()" style="width:18px;height:18px;accent-color:#c8956c;">
+                                        <span style="font-size:14px; font-weight:600;">⭐ ポイント</span>
+                                    </label>
+                                    <div id="amt-point" style="display:none; align-items:center; gap:6px; padding:0 4px;">
+                                        <input type="number" id="sessionPricePoint" min="0" step="100" placeholder="0" oninput="app.updatePaymentCalc()"
+                                            style="flex:1; font-size:16px; font-weight:700; color:#c8956c; text-align:right; padding:8px 10px; border:1px solid #f0c9a0; border-radius:8px;">
+                                        <span style="font-size:14px; color:#c8956c; font-weight:600;">円 分</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 支払い内訳サマリー -->
+                            <div id="paymentBreakdownSummary" style="display:none; margin-top:12px; background:#fff; border-radius:10px; padding:12px 14px; border:1px solid #f0c9a0;">
+                                <div id="breakdownLines"></div>
+                                <div style="border-top:1px solid #f0d9d9; margin:8px 0;"></div>
+                                <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+                                    <span>支払い合計</span>
+                                    <span id="breakdownTotal" style="color:#c8956c;">¥0</span>
+                                </div>
+                                <div id="breakdownDiff" style="font-size:12px; margin-top:4px; text-align:right;"></div>
                             </div>
                         </div>
                     </div>
@@ -1233,6 +1272,7 @@
         <div class="modal-content">
             <div class="modal-close" onclick="app.closeModal()">&times;</div>
             <h2 class="modal-title">問診票</h2>
+            <button onclick="app.editQuestionnaire()" style="width:100%; margin-bottom:16px; padding:10px; border-radius:10px; border:1px solid #f0c9a0; background:#fff8f0; color:#c8956c; font-size:14px; font-weight:600; cursor:pointer;">✏️ 問診票を編集する（署名追加など）</button>
             <div id="questionnaireContent"></div>
         </div>
     </div>
@@ -1270,6 +1310,7 @@
         const app = {
             currentCustomerId: null,
             currentSessionId: null,
+            editingCustomerId: null,
             clients: [],
             drawModes: {},
             signaturePad: null,
@@ -1373,9 +1414,14 @@
                         document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
                         document.getElementById('sessionPrice').value = '';
                         document.getElementById('paymentCalcResult').style.display = 'none';
+                        document.getElementById('paymentBreakdownSummary').style.display = 'none';
                         ['cash','credit','smart','point'].forEach(id => {
                             const lbl = document.getElementById('lbl-' + id);
-                            if (lbl) { lbl.style.background=''; lbl.style.borderColor='#f0c9a0'; lbl.style.color=''; }
+                            if (lbl) { lbl.style.background=''; lbl.style.borderColor='#f0c9a0'; }
+                            const amt = document.getElementById('amt-' + id);
+                            if (amt) amt.style.display = 'none';
+                            const key = 'sessionPrice' + id.charAt(0).toUpperCase() + id.slice(1);
+                            const el = document.getElementById(key); if (el) el.value = '';
                         });
                     }
                     this.renderSessionHistory();
@@ -1876,11 +1922,26 @@
                     sessions: []
                 };
 
-                this.clients.push(customer);
-                this.saveClients();
-                this.showScreen('home');
-                this.renderCustomerList();
-                this.showToast('✅ 新規顧客を登録しました');
+                if (this.editingCustomerId) {
+                    // 既存顧客の問診票を更新（施術記録は引き継ぐ）
+                    const idx = this.clients.findIndex(c => c.id === this.editingCustomerId);
+                    if (idx !== -1) {
+                        customer.id = this.editingCustomerId;
+                        customer.sessions = this.clients[idx].sessions || [];
+                        customer.memo = this.clients[idx].memo || '';
+                        this.clients[idx] = customer;
+                    }
+                    this.editingCustomerId = null;
+                    this.saveClients();
+                    this.showScreen('detail');
+                    this.showToast('✅ 問診票を更新しました');
+                } else {
+                    this.clients.push(customer);
+                    this.saveClients();
+                    this.showScreen('home');
+                    this.renderCustomerList();
+                    this.showToast('✅ 新規顧客を登録しました');
+                }
             },
 
             // 顧客詳細
@@ -1945,7 +2006,9 @@
                             <div class="session-date">${session.date}</div>
                             <div style="text-align:right;">
                                 ${session.price ? `<div style="font-weight:700;color:#c8956c;font-size:15px;">¥${session.price.toLocaleString()}</div>` : ''}
-                                ${session.paymentMethod ? `<div style="font-size:11px;color:#aaa;">${session.paymentMethod}</div>` : ''}
+                                ${(session.paymentBreakdown && session.paymentBreakdown.length > 0)
+                                    ? session.paymentBreakdown.map(b => `<div style="font-size:11px;color:#aaa;">${b.method} ¥${(b.amount||0).toLocaleString()}</div>`).join('')
+                                    : (session.paymentMethod ? `<div style="font-size:11px;color:#aaa;">${session.paymentMethod}</div>` : '')}
                             </div>
                         </div>
                         <div class="session-menu">${session.menu} (${session.duration}分)</div>
@@ -1977,8 +2040,20 @@
                     nextNotes: document.getElementById('sessionNextNotes').value,
                     nextInterval: document.getElementById('sessionNextInterval').value,
                     price: parseInt(document.getElementById('sessionPrice').value) || 0,
-                    paymentMethod: (document.querySelector('input[name="paymentMethod"]:checked') || {}).value || '',
-                    paymentBrand: (document.querySelector('input[name="paymentBrand"]:checked') || {}).value || ''
+                    paymentBreakdown: (() => {
+                        const ids = ['cash','credit','smart','point'];
+                        const labels = { cash:'現金', credit:'クレジット', smart:'スマート支払い', point:'ポイント支払い' };
+                        const result = [];
+                        ids.forEach(id => {
+                            const lbl = document.getElementById('lbl-' + id);
+                            if (lbl && lbl.querySelector('input[type="checkbox"]').checked) {
+                                const key = 'sessionPrice' + id.charAt(0).toUpperCase() + id.slice(1);
+                                const amt = parseInt((document.getElementById(key) || {}).value) || 0;
+                                result.push({ method: labels[id], amount: amt });
+                            }
+                        });
+                        return result;
+                    })()
                 };
 
                 if (this.currentSessionId) {
@@ -2015,12 +2090,23 @@
                 document.getElementById('sessionNextInterval').value = session.nextInterval;
                 document.getElementById('sessionPrice').value = session.price || '';
 
-                // 支払い方法の復元
+                // 支払い方法の復元（複数選択対応）
                 document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
-                if (session.paymentMethod) {
-                    const el = document.querySelector(`input[name="paymentMethod"][value="${session.paymentMethod}"]`);
-                    if (el) el.checked = true;
-                }
+                ['sessionPriceCash','sessionPriceCredit','sessionPriceSmart','sessionPricePoint'].forEach(id => {
+                    const el = document.getElementById(id); if (el) el.value = '';
+                });
+                const breakdown = session.paymentBreakdown || (session.paymentMethod ? [{ method: session.paymentMethod, amount: session.price || 0 }] : []);
+                const idMap = { '現金':'cash', 'クレジット':'credit', 'スマート支払い':'smart', 'ポイント支払い':'point' };
+                const keyMap = { cash:'sessionPriceCash', credit:'sessionPriceCredit', smart:'sessionPriceSmart', point:'sessionPricePoint' };
+                breakdown.forEach(b => {
+                    const id = idMap[b.method];
+                    if (id) {
+                        const lbl = document.getElementById('lbl-' + id);
+                        if (lbl) lbl.querySelector('input[type="checkbox"]').checked = true;
+                        const amtEl = document.getElementById(keyMap[id]);
+                        if (amtEl) amtEl.value = b.amount || '';
+                    }
+                });
                 this.updatePaymentCalc();
 
                 this.showScreen('session');
@@ -2155,6 +2241,67 @@
                 document.getElementById('questionnaireModal').classList.remove('active');
             },
 
+            editQuestionnaire() {
+                const customer = this.clients.find(c => c.id === this.currentCustomerId);
+                if (!customer) return;
+                this.editingCustomerId = customer.id;
+                this.closeModal();
+
+                // フォームをリセットしてから顧客データを流し込む
+                document.getElementById('registerForm').reset();
+                this.clearAllBodyMaps();
+                this.clearSignature();
+                this.initBirthdatePicker();
+
+                // 基本情報
+                document.getElementById('name').value = customer.name || '';
+                document.getElementById('furigana').value = customer.furigana || '';
+                document.getElementById('phone').value = customer.phone || '';
+                document.getElementById('email').value = customer.email || '';
+                document.getElementById('firstVisit').value = customer.firstVisit || '';
+                document.getElementById('receiptDate').value = customer.receiptDate || '';
+                document.getElementById('occupation').value = customer.occupation || '';
+                if (customer.referral) document.getElementById('referral').value = customer.referral;
+                if (customer.otherHistory) document.getElementById('otherHistory').value = customer.otherHistory;
+                if (customer.acknowledged) document.getElementById('acknowledged').checked = true;
+                if (customer.paperConsentExists) document.getElementById('paperConsentExists').checked = true;
+
+                // お悩みチェック復元
+                document.querySelectorAll('.concern-check').forEach(cb => {
+                    const baseName = cb.value.startsWith('その他') ? 'その他' : cb.value;
+                    if ((customer.concerns || []).some(c => c === cb.value || c.startsWith(baseName))) {
+                        cb.checked = true;
+                        if (cb.value === 'その他') {
+                            this.toggleConcernOther(cb);
+                            const otherText = (customer.concerns || []).find(c => c.startsWith('その他（'));
+                            if (otherText) {
+                                const t = document.getElementById('concernOtherText');
+                                if (t) t.value = otherText.replace(/^その他（/, '').replace(/）$/, '');
+                            }
+                        }
+                    }
+                });
+
+                // 施術遠慮チェック復元
+                document.querySelectorAll('.caution-check').forEach(cb => {
+                    if ((customer.cautions || []).includes(cb.value)) cb.checked = true;
+                });
+
+                // 署名の復元
+                if (customer.signatureData) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.getElementById('signaturePad');
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        if (this.signaturePad) this.signaturePad._isEmpty = false;
+                    };
+                    img.src = customer.signatureData;
+                }
+
+                this.showScreen('register');
+            },
+
             showSessionModal(sessionId) {
                 const customer = this.clients.find(c => c.id === this.currentCustomerId);
                 if (!customer) return;
@@ -2171,8 +2318,8 @@
                         <div class="questionnaire-item"><strong>施術時間:</strong> ${session.duration}分</div>
                         ${session.price ? `<div class="questionnaire-item"><strong>💴 お会計（税込）:</strong> <span style="color:#c8956c;font-weight:700;">¥${session.price.toLocaleString()}</span></div>` : ''}
                         ${session.price ? `<div class="questionnaire-item" style="padding-left:8px; border-left:3px solid #f0d9d9;">
-                            <div style="font-size:12px; color:#aaa; margin-bottom:2px;">税抜: ¥${Math.round(session.price/1.1).toLocaleString()} ／ 消費税: ¥${(session.price - Math.round(session.price/1.1)).toLocaleString()}</div>
-                            ${session.paymentMethod ? `<div style="font-size:13px; color:#888;">支払い方法: ${session.paymentMethod}</div>` : ''}
+                            <div style="font-size:12px; color:#aaa; margin-bottom:4px;">税抜: ¥${Math.round(session.price/1.1).toLocaleString()} ／ 消費税: ¥${(session.price - Math.round(session.price/1.1)).toLocaleString()}</div>
+                            ${(session.paymentBreakdown && session.paymentBreakdown.length > 0) ? session.paymentBreakdown.map(b => `<div style="font-size:13px;color:#888;">・${b.method}: ¥${(b.amount||0).toLocaleString()}</div>`).join('') : (session.paymentMethod ? `<div style="font-size:13px;color:#888;">・${session.paymentMethod}</div>` : '')}
                         </div>` : ''}
                     </div>
                     <div class="questionnaire-section">
@@ -2426,30 +2573,65 @@
             // お会計計算
             updatePaymentCalc() {
                 const price = parseInt(document.getElementById('sessionPrice').value) || 0;
-                const method = (document.querySelector('input[name="paymentMethod"]:checked') || {}).value || '';
+                const pmIds = ['cash','credit','smart','point'];
+                const pmLabels = { cash:'現金', credit:'クレジット', smart:'スマート支払い', point:'ポイント支払い' };
 
-                // 支払いラベルのハイライト
-                ['cash','credit','smart','point'].forEach(id => {
+                // チェック状態に応じて金額入力欄を表示/非表示 & ラベルをハイライト
+                pmIds.forEach(id => {
                     const lbl = document.getElementById('lbl-' + id);
-                    if (lbl) {
-                        const val = lbl.querySelector('input').value;
-                        lbl.style.background = method === val ? '#fff0e6' : '';
-                        lbl.style.borderColor = method === val ? '#c8956c' : '#f0c9a0';
-                        lbl.style.color = method === val ? '#c8956c' : '#555';
-                    }
+                    const amt = document.getElementById('amt-' + id);
+                    if (!lbl || !amt) return;
+                    const cb = lbl.querySelector('input[type="checkbox"]');
+                    const checked = cb && cb.checked;
+                    lbl.style.background = checked ? '#fff0e6' : '';
+                    lbl.style.borderColor = checked ? '#c8956c' : '#f0c9a0';
+                    amt.style.display = checked ? 'flex' : 'none';
                 });
 
                 // 消費税内訳
                 const result = document.getElementById('paymentCalcResult');
-                if (!price) { result.style.display = 'none'; return; }
+                if (price) {
+                    const taxExcluded = Math.round(price / 1.1);
+                    const tax = price - taxExcluded;
+                    document.getElementById('calcTaxExcluded').textContent = '¥' + taxExcluded.toLocaleString();
+                    document.getElementById('calcTax').textContent = '¥' + tax.toLocaleString();
+                    result.style.display = 'block';
+                } else {
+                    result.style.display = 'none';
+                }
 
-                const taxExcluded = Math.round(price / 1.1);
-                const tax = price - taxExcluded;
+                // 支払い内訳サマリー
+                const summary = document.getElementById('paymentBreakdownSummary');
+                const checkedIds = pmIds.filter(id => {
+                    const lbl = document.getElementById('lbl-' + id);
+                    return lbl && lbl.querySelector('input[type="checkbox"]').checked;
+                });
 
-                document.getElementById('calcTaxExcluded').textContent = '¥' + taxExcluded.toLocaleString();
-                document.getElementById('calcTax').textContent = '¥' + tax.toLocaleString();
+                if (checkedIds.length === 0) { summary.style.display = 'none'; return; }
 
-                result.style.display = 'block';
+                let breakdownTotal = 0;
+                let lines = '';
+                checkedIds.forEach(id => {
+                    const amt = parseInt((document.getElementById('sessionPrice' + id.charAt(0).toUpperCase() + id.slice(1)) || {}).value) || 0;
+                    breakdownTotal += amt;
+                    lines += `<div style="display:flex;justify-content:space-between;font-size:13px;color:#888;margin-bottom:4px;">
+                        <span>${pmLabels[id]}</span><span>¥${amt.toLocaleString()}</span></div>`;
+                });
+
+                document.getElementById('breakdownLines').innerHTML = lines;
+                document.getElementById('breakdownTotal').textContent = '¥' + breakdownTotal.toLocaleString();
+
+                const diff = price - breakdownTotal;
+                const diffEl = document.getElementById('breakdownDiff');
+                if (price && diff !== 0) {
+                    diffEl.innerHTML = `<span style="color:#e57373;">合計金額との差額: ${diff > 0 ? '+' : ''}¥${diff.toLocaleString()}</span>`;
+                } else if (price && diff === 0) {
+                    diffEl.innerHTML = '<span style="color:#4caf50;">✓ 合計金額と一致</span>';
+                } else {
+                    diffEl.innerHTML = '';
+                }
+
+                summary.style.display = 'block';
             },
 
             // ユーティリティ
