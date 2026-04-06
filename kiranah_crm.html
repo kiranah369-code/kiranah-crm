@@ -871,7 +871,6 @@
             <div class="screen" id="screen-register">
                 <button class="btn-back" onclick="app.showScreen('home')">← 戻る</button>
                 <form id="registerForm" onsubmit="app.saveNewCustomer(event)">
-                    <p style="font-size:13px; color:#aaa; margin-bottom:16px;">* お名前のみ必須です。その他の項目は後から追加できます。</p>
                     <!-- 基本情報 -->
                     <h3 style="margin-bottom: 16px; color: #c8956c;">基本情報</h3>
                     <div class="form-row">
@@ -1027,8 +1026,14 @@
 
                     <!-- 同意書署名 -->
                     <h3 style="margin: 30px 0 16px 0; color: #c8956c;">同意書署名</h3>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="paperConsentExists">
+                            <label for="paperConsentExists" style="color: #c8956c; font-weight: 600;">📄 紙の同意書あり（保管中）</label>
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label>署名*</label>
+                        <label>署名</label>
                         <canvas id="signaturePad"></canvas>
                         <div class="signature-controls">
                             <button type="button" class="btn-secondary btn-small" onclick="app.clearSignature()">クリア</button>
@@ -1833,11 +1838,6 @@
                 });
                 const cautions = Array.from(document.querySelectorAll('.caution-check:checked')).map(el => el.value);
 
-                if (this.signaturePad.isEmpty()) {
-                    this.showToast('署名を入力してください');
-                    return;
-                }
-
                 const customer = {
                     id: this.generateId(),
                     name: document.getElementById('name').value,
@@ -1853,7 +1853,8 @@
                     cautions: cautions,
                     otherHistory: document.getElementById('otherHistory').value,
                     acknowledged: document.getElementById('acknowledged').checked,
-                    signatureData: this.signaturePad.toDataURL(),
+                    paperConsentExists: document.getElementById('paperConsentExists').checked,
+                    signatureData: this.signaturePad.isEmpty() ? '' : this.signaturePad.toDataURL(),
                     receiptDate: document.getElementById('receiptDate').value,
                     sessions: []
                 };
@@ -2053,13 +2054,10 @@
                     </div>
 
                     <div class="questionnaire-section">
-                        <div class="questionnaire-section-title">署名</div>
-                        <img src="${customer.signatureData}" style="width: 200px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-
-                    <div class="questionnaire-section">
-                        <div class="questionnaire-section-title">受領日</div>
-                        <div class="questionnaire-item">${customer.receiptDate}</div>
+                        <div class="questionnaire-section-title">同意書</div>
+                        ${customer.paperConsentExists ? '<div class="questionnaire-item" style="color:#c8956c;font-weight:600;">📄 紙の同意書あり（保管中）</div>' : ''}
+                        ${customer.signatureData ? `<img src="${customer.signatureData}" style="width: 200px; border: 1px solid #ddd; border-radius: 4px; margin-top:8px;">` : (!customer.paperConsentExists ? '<div class="questionnaire-item" style="color:#aaa;">署名なし</div>' : '')}
+                        ${customer.receiptDate ? `<div class="questionnaire-item" style="margin-top:6px;">受領日: ${customer.receiptDate}</div>` : ''}
                     </div>
                 `;
 
