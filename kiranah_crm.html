@@ -925,6 +925,10 @@
                             <option value="その他">その他</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>職業</label>
+                        <input type="text" id="occupation" placeholder="例：会社員、主婦、学生など">
+                    </div>
 
                     <!-- お悩みチェック -->
                     <h3 style="margin: 30px 0 16px 0; color: #c8956c;">お悩みチェック</h3>
@@ -1061,6 +1065,16 @@
                 <div style="text-align:right; margin-top: 8px;">
                     <button onclick="app.confirmDeleteCustomer()" style="background:none; border:none; color:#ccc; font-size:12px; cursor:pointer; text-decoration:underline; padding:4px 0;">この顧客を削除する</button>
                 </div>
+                <!-- 自由記述メモ -->
+                <div style="margin: 20px 0; background: #fffbf0; border: 1px solid #f0e0a0; border-radius: 12px; padding: 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="color: #b8960c; font-size:15px; margin:0;">📝 メモ（施術以外の話など）</h3>
+                        <button type="button" onclick="app.saveCustomerMemo()" style="background:#f0e0a0; border:none; border-radius:8px; padding:6px 14px; font-size:13px; font-weight:600; color:#8a6d00; cursor:pointer;">保存</button>
+                    </div>
+                    <textarea id="customerMemoInput" placeholder="家族のこと、趣味、体の悩みなど自由にメモできます"
+                        style="width:100%; min-height:90px; border:1px solid #f0e0a0; border-radius:8px; padding:10px; font-size:14px; resize:vertical; background:#fff; font-family:inherit;"></textarea>
+                </div>
+
                 <h3 style="margin: 24px 0 12px 0; color: #c8956c;">施術記録</h3>
                 <input type="text" id="sessionSearch" class="search-bar" placeholder="🔍 日付・メニューで絞り込み" oninput="app.filterSessions(this.value)" style="margin-bottom:16px;">
                 <div class="session-list" id="sessionList"></div>
@@ -1474,8 +1488,9 @@
 
             // お悩み・施術遠慮
             setupConcernsAndCautions() {
-                const concerns = ['肩こり', '首こり', '腰痛', '背中の張り', '頭痛', '足のむくみ',
-                                '冷え性', '疲れやすい', '不眠', '睡眠', 'ストレス', '全身疲労', 'その他'];
+                const concerns = ['肩こり', '首こり', '肩甲骨', '腰痛', '背中の張り', '背部', '頭痛',
+                                '足のむくみ', 'ふくらはぎ', '冷え性', '疲れやすい', '不眠', '睡眠',
+                                'ストレス', '全身疲労', 'その他'];
                 const cautionsArray = ['心臓病', '糖尿病', '血栓症', '動脈瘤', '静脈瘤', '高血圧・低血圧',
                                      '妊娠中（その可能性含む）', '3ヶ月以内に手術を受けた', '悪性腫瘍（がん）',
                                      '骨粗鬆症', '皮膚疾患・炎症・傷がある', '発熱中・体調不良',
@@ -1847,6 +1862,7 @@
                     email: document.getElementById('email').value,
                     firstVisit: document.getElementById('firstVisit').value,
                     referral: document.getElementById('referral').value,
+                    occupation: document.getElementById('occupation').value,
                     concerns: concerns,
                     bodyMapFront: document.getElementById('bodyMapFrontCanvas').toDataURL(),
                     bodyMapBack: document.getElementById('bodyMapBackCanvas').toDataURL(),
@@ -1885,7 +1901,19 @@
                     <div class="customer-detail-info">最終来店日: ${lastVisit}</div>
                 `;
 
+                // メモを読み込む
+                const memoInput = document.getElementById('customerMemoInput');
+                if (memoInput) memoInput.value = customer.memo || '';
+
                 this.renderSessionList(customer);
+            },
+
+            saveCustomerMemo() {
+                const customer = this.clients.find(c => c.id === this.currentCustomerId);
+                if (!customer) return;
+                customer.memo = document.getElementById('customerMemoInput').value;
+                this.saveClients();
+                this.showToast('✅ メモを保存しました');
             },
 
             filterSessions(query) {
@@ -2022,6 +2050,7 @@
                         <div class="questionnaire-item"><strong>メール:</strong> ${customer.email || '-'}</div>
                         <div class="questionnaire-item"><strong>初回来店日:</strong> ${customer.firstVisit}</div>
                         <div class="questionnaire-item"><strong>紹介元:</strong> ${customer.referral || '-'}</div>
+                        ${customer.occupation ? `<div class="questionnaire-item"><strong>職業:</strong> ${customer.occupation}</div>` : ''}
                     </div>
 
                     <div class="questionnaire-section">
