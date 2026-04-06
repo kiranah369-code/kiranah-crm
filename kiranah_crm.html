@@ -1052,6 +1052,9 @@
                     <button class="btn-secondary" onclick="app.showQuestionnaireModal()">問診票を見る</button>
                     <button class="btn-primary" onclick="app.showScreen('session')">施術記録を追加</button>
                 </div>
+                <div style="text-align:right; margin-top: 8px;">
+                    <button onclick="app.confirmDeleteCustomer()" style="background:none; border:none; color:#ccc; font-size:12px; cursor:pointer; text-decoration:underline; padding:4px 0;">この顧客を削除する</button>
+                </div>
                 <h3 style="margin: 24px 0 12px 0; color: #c8956c;">施術記録</h3>
                 <input type="text" id="sessionSearch" class="search-bar" placeholder="🔍 日付・メニューで絞り込み" oninput="app.filterSessions(this.value)" style="margin-bottom:16px;">
                 <div class="session-list" id="sessionList"></div>
@@ -1179,6 +1182,25 @@
             <div class="modal-close" onclick="app.closeSessionModal()">&times;</div>
             <h2 class="modal-title">施術記録</h2>
             <div id="sessionModalContent"></div>
+        </div>
+    </div>
+
+    <!-- モーダル：顧客削除確認 -->
+    <div class="modal" id="deleteCustomerModal">
+        <div class="modal-content" style="max-width: 340px;">
+            <h2 class="modal-title" style="color: #e57373;">⚠️ 顧客データの削除</h2>
+            <div id="deleteCustomerInfo" style="text-align:center; margin: 16px 0; padding: 16px; background:#fff5f5; border-radius:10px; border:1px solid #f5c5c5;"></div>
+            <p style="font-size: 14px; color: #888; text-align: center; margin-bottom: 20px; line-height: 1.7;">
+                施術記録・問診票を含む<br>すべてのデータが<strong style="color:#e57373;">完全に削除</strong>されます。<br>この操作は取り消せません。
+            </p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="app.closeDeleteCustomerModal()" style="flex:1; padding:14px; border-radius:10px; border:1px solid #ddd; background:#f5f5f5; font-size:15px; cursor:pointer; font-weight:600;">
+                    キャンセル
+                </button>
+                <button onclick="app.executeDeleteCustomer()" style="flex:1; padding:14px; border-radius:10px; border:none; background:#e57373; color:white; font-size:15px; cursor:pointer; font-weight:700;">
+                    削除する
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2058,6 +2080,31 @@
 
             closeSessionModal() {
                 document.getElementById('sessionModal').classList.remove('active');
+            },
+
+            // 顧客削除
+            confirmDeleteCustomer() {
+                const customer = this.clients.find(c => c.id === this.currentCustomerId);
+                if (!customer) return;
+                const visitCount = (customer.sessions || []).length;
+                document.getElementById('deleteCustomerInfo').innerHTML = `
+                    <div style="font-size:18px; font-weight:800; color:#333; margin-bottom:6px;">${customer.name} 様</div>
+                    <div style="font-size:13px; color:#aaa;">施術記録：${visitCount}件</div>
+                `;
+                document.getElementById('deleteCustomerModal').classList.add('active');
+            },
+
+            closeDeleteCustomerModal() {
+                document.getElementById('deleteCustomerModal').classList.remove('active');
+            },
+
+            executeDeleteCustomer() {
+                this.clients = this.clients.filter(c => c.id !== this.currentCustomerId);
+                this.saveClients();
+                this.closeDeleteCustomerModal();
+                this.currentCustomerId = null;
+                this.showScreen('home');
+                this.showToast('🗑️ 顧客データを削除しました');
             },
 
             // 施術記録フォーム画面の下に来店履歴を表示
