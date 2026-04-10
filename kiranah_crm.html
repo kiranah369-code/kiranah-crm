@@ -1319,8 +1319,18 @@
         <div class="modal-content">
             <div class="modal-close" onclick="app.closeModal()">&times;</div>
             <h2 class="modal-title">問診票</h2>
-            <button onclick="app.editQuestionnaire()" style="width:100%; margin-bottom:16px; padding:10px; border-radius:10px; border:1px solid #f0c9a0; background:#fff8f0; color:#c8956c; font-size:14px; font-weight:600; cursor:pointer;">✏️ 問診票を編集する（署名追加など）</button>
+            <button onclick="app.editQuestionnaire()" style="width:100%; margin-bottom:16px; padding:10px; border-radius:10px; border:1px solid #f0c9a0; background:#fff8f0; color:#c8956c; font-size:14px; font-weight:600; cursor:pointer;">✏️ 問診票を編集する</button>
             <div id="questionnaireContent"></div>
+        </div>
+    </div>
+
+    <!-- モーダル：売上内訳 -->
+    <div class="modal" id="salesBreakdownModal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-close" onclick="app.closeSalesBreakdownModal()">&times;</div>
+            <h2 class="modal-title" id="salesBreakdownTitle" style="font-size:18px;margin-bottom:20px;">売上内訳</h2>
+            <div id="salesBreakdownBody"></div>
+            <button onclick="app.closeSalesBreakdownModal()" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#d4a5a5,#c8956c);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">閉じる</button>
         </div>
     </div>
 
@@ -2345,13 +2355,10 @@
                 this.editingCustomerId = customer.id;
                 this.closeModal();
 
-                // フォームをリセットしてから顧客データを流し込む
-                document.getElementById('registerForm').reset();
-                this.clearAllBodyMaps();
-                this.clearSignature();
-                this.initBirthdatePicker();
+                // まず画面を切り替えてフォーム初期化（内部でreset・initBirthdatePicker等が実行される）
+                this.showScreen('register');
 
-                // 基本情報
+                // ── 基本情報 ──
                 document.getElementById('name').value = customer.name || '';
                 document.getElementById('furigana').value = customer.furigana || '';
                 document.getElementById('phone').value = customer.phone || '';
@@ -2360,7 +2367,7 @@
                 document.getElementById('receiptDate').value = customer.receiptDate || '';
                 document.getElementById('occupation').value = customer.occupation || '';
 
-                // 紹介元の復元
+                // ── 紹介元の復元 ──
                 if (customer.referral) {
                     const refVal = customer.referral;
                     if (refVal.startsWith('その他（')) {
@@ -2375,7 +2382,7 @@
                     }
                 }
 
-                // 生年月日の復元
+                // ── 生年月日の復元 ──
                 if (customer.birthdate) {
                     const parts = customer.birthdate.split('-');
                     if (parts.length === 3) {
@@ -2392,11 +2399,8 @@
                         }
                     }
                 }
-                if (customer.otherHistory) document.getElementById('otherHistory').value = customer.otherHistory;
-                if (customer.acknowledged) document.getElementById('acknowledged').checked = true;
-                if (customer.paperConsentExists) document.getElementById('paperConsentExists').checked = true;
 
-                // お悩みチェック復元
+                // ── お悩みチェック復元 ──
                 document.querySelectorAll('.concern-check').forEach(cb => {
                     const baseName = cb.value.startsWith('その他') ? 'その他' : cb.value;
                     if ((customer.concerns || []).some(c => c === cb.value || c.startsWith(baseName))) {
@@ -2412,12 +2416,33 @@
                     }
                 });
 
-                // 施術遠慮チェック復元
+                // ── 体の図（前面・背面）の復元 ──
+                const restoreBodyMap = (canvasId, dataSrc) => {
+                    if (!dataSrc) return;
+                    const canvas = document.getElementById(canvasId);
+                    if (!canvas) return;
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = dataSrc;
+                };
+                restoreBodyMap('bodyMapFrontCanvas', customer.bodyMapFront);
+                restoreBodyMap('bodyMapBackCanvas', customer.bodyMapBack);
+
+                // ── 施術遠慮チェック復元 ──
                 document.querySelectorAll('.caution-check').forEach(cb => {
                     if ((customer.cautions || []).includes(cb.value)) cb.checked = true;
                 });
 
-                // 署名の復元
+                // ── その他（事故・手術歴など） ──
+                if (customer.otherHistory) document.getElementById('otherHistory').value = customer.otherHistory;
+
+                // ── 同意・署名 ──
+                if (customer.acknowledged) document.getElementById('acknowledged').checked = true;
+                if (customer.paperConsentExists) document.getElementById('paperConsentExists').checked = true;
                 if (customer.signatureData) {
                     const img = new Image();
                     img.onload = () => {
@@ -2428,8 +2453,6 @@
                     };
                     img.src = customer.signatureData;
                 }
-
-                this.showScreen('register');
             },
 
             showSessionModal(sessionId) {
@@ -2538,11 +2561,13 @@
             renderAnalytics() {
                 const container = document.getElementById('analyticsContent');
 
-                // 全セッションを収集
+                // 全セッションを収集（削除済みフラグがあるものは除外）
                 const allSessions = [];
                 this.clients.forEach(c => {
                     (c.sessions || []).forEach(s => {
-                        allSessions.push({ ...s, clientName: c.name, clientId: c.id });
+                        if (!s.deleted) {
+                            allSessions.push({ ...s, clientName: c.name, clientId: c.id });
+                        }
                     });
                 });
 
@@ -2568,6 +2593,9 @@
 
                 const today = now.toISOString().split('T')[0];
                 const todaySessions = allSessions.filter(s => s.date === today);
+
+                // 内訳表示用にインスタンス変数として保持
+                this._breakdownSessions = { today: todaySessions, month: thisMonthSessions };
 
                 const sum = (sessions) => sessions.reduce((a, s) => a + (s.price || 0), 0);
                 const todayTotal = sum(todaySessions);
@@ -2640,15 +2668,15 @@
 
                 container.innerHTML = `
                     <div class="analytics-grid">
-                        <div class="analytics-card analytics-card-wide" style="background: linear-gradient(135deg, #fff0e6, #fdf5f0); border: 2px solid #f0c9a0;">
+                        <div class="analytics-card analytics-card-wide" style="background: linear-gradient(135deg, #fff0e6, #fdf5f0); border: 2px solid #f0c9a0; cursor:pointer;" onclick="app.showSalesBreakdown('today')" title="クリックで内訳を表示">
                             <div class="analytics-label" style="color:#c8956c;">📅 本日の売上（${today}）</div>
                             <div class="analytics-value" style="font-size:32px;">¥${todayTotal.toLocaleString()}</div>
-                            <div class="analytics-sub">${todayCount > 0 ? `来店 ${todayCount}件` : 'まだ記録がありません'}</div>
+                            <div class="analytics-sub">${todayCount > 0 ? `来店 ${todayCount}件` : 'まだ記録がありません'} <span style="font-size:11px;color:#c8956c;margin-left:6px;">▼ 内訳</span></div>
                         </div>
-                        <div class="analytics-card">
+                        <div class="analytics-card" style="cursor:pointer;" onclick="app.showSalesBreakdown('month')" title="クリックで内訳を表示">
                             <div class="analytics-label">今月の売上</div>
                             <div class="analytics-value">¥${thisMonthTotal.toLocaleString()}</div>
-                            <div class="analytics-sub" style="color:${diffColor};">${diffStr} 先月比</div>
+                            <div class="analytics-sub" style="color:${diffColor};">${diffStr} 先月比 <span style="font-size:11px;color:#c8956c;margin-left:4px;">▼ 内訳</span></div>
                         </div>
                         <div class="analytics-card">
                             <div class="analytics-label">今月の来店数</div>
@@ -2837,6 +2865,82 @@
                 this.saveClients();
                 this.renderAnalytics();
                 this.showToast('🗑️ 施術記録を削除しました');
+            },
+
+            // 売上内訳モーダルを表示
+            showSalesBreakdown(type) {
+                const sessions = (this._breakdownSessions || {})[type] || [];
+                const isToday = type === 'today';
+                const titleText = isToday ? '本日の売上 内訳' : '今月の売上 内訳';
+
+                // 支払い方法ごとに集計
+                const methodLabels = [
+                    { key: 'cash',   label: '現金',               match: (m) => m === '現金' || m === 'cash' },
+                    { key: 'credit', label: 'クレジット',          match: (m) => m === 'クレジット' || m === 'credit' },
+                    { key: 'smart',  label: 'スマート決済（PayPay等）', match: (m) => m && (m.includes('スマート') || m === 'smart') },
+                    { key: 'point',  label: 'ポイント使用',         match: (m) => m && (m.includes('ポイント') || m === 'point') },
+                ];
+                const totals = { cash: 0, credit: 0, smart: 0, point: 0 };
+                let uncategorized = 0;
+
+                sessions.forEach(s => {
+                    if (s.paymentBreakdown && s.paymentBreakdown.length > 0) {
+                        s.paymentBreakdown.forEach(b => {
+                            const amt = b.amount || 0;
+                            const found = methodLabels.find(ml => ml.match(b.method || ''));
+                            if (found) totals[found.key] += amt;
+                            else uncategorized += amt;
+                        });
+                    } else if (s.paymentMethod) {
+                        const amt = s.price || 0;
+                        const found = methodLabels.find(ml => ml.match(s.paymentMethod));
+                        if (found) totals[found.key] += amt;
+                        else uncategorized += amt;
+                    } else {
+                        uncategorized += s.price || 0;
+                    }
+                });
+
+                const grandTotal = sessions.reduce((a, s) => a + (s.price || 0), 0);
+                const icons = { cash: '💴', credit: '💳', smart: '📱', point: '🎁' };
+
+                let rows = methodLabels.map(ml => {
+                    const amt = totals[ml.key];
+                    return `
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:${amt > 0 ? '#fff8f0' : '#fafafa'};border-radius:10px;margin-bottom:8px;border:1px solid ${amt > 0 ? '#f0c9a0' : '#eee'};">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:22px;">${icons[ml.key]}</span>
+                                <span style="font-size:14px;font-weight:600;color:#333;">${ml.label}</span>
+                            </div>
+                            <span style="font-size:16px;font-weight:700;color:${amt > 0 ? '#c8956c' : '#bbb'};">¥${amt.toLocaleString()}</span>
+                        </div>`;
+                }).join('');
+
+                if (uncategorized > 0) {
+                    rows += `
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fafafa;border-radius:10px;margin-bottom:8px;border:1px solid #eee;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:22px;">❓</span>
+                                <span style="font-size:14px;font-weight:600;color:#333;">その他・未分類</span>
+                            </div>
+                            <span style="font-size:16px;font-weight:700;color:#999;">¥${uncategorized.toLocaleString()}</span>
+                        </div>`;
+                }
+
+                const countLine = `<div style="font-size:13px;color:#aaa;margin-bottom:16px;">来店 ${sessions.length}件</div>`;
+                const totalLine = `
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #f0d9d9;margin-top:12px;padding-top:12px;">
+                        <span style="font-size:15px;font-weight:700;color:#333;">合計</span>
+                        <span style="font-size:20px;font-weight:800;color:#c8956c;">¥${grandTotal.toLocaleString()}</span>
+                    </div>`;
+
+                document.getElementById('salesBreakdownTitle').textContent = titleText;
+                document.getElementById('salesBreakdownBody').innerHTML = countLine + rows + totalLine;
+                document.getElementById('salesBreakdownModal').classList.add('active');
+            },
+
+            closeSalesBreakdownModal() {
+                document.getElementById('salesBreakdownModal').classList.remove('active');
             },
 
             // お会計計算
