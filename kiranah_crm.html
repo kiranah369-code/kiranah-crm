@@ -844,6 +844,47 @@
             justify-content: space-between;
             align-items: center;
         }
+
+        /* 問診票フォーム：ラベル左・入力右インラインレイアウト */
+        .field-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .field-inline label {
+            min-width: 78px;
+            max-width: 90px;
+            margin-bottom: 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            text-align: right;
+            flex-shrink: 0;
+            padding-right: 4px;
+            border-right: 2px solid #e8d0d5;
+        }
+        .field-inline .input-wrap {
+            flex: 1;
+            min-width: 0;
+        }
+        .field-inline input,
+        .field-inline select,
+        .field-inline textarea {
+            width: 100%;
+            font-size: 15px;
+            padding: 9px 10px;
+            min-height: 42px;
+        }
+        .field-inline-pair {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .field-inline-pair .field-inline {
+            flex: 1;
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -872,21 +913,19 @@
                 <button class="btn-back" onclick="app.showScreen('home')">← 戻る</button>
                 <form id="registerForm" onsubmit="app.saveNewCustomer(event)">
                     <!-- 基本情報 -->
-                    <h3 style="margin-bottom: 16px; color: #c8956c;">基本情報</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>お名前（漢字）*</label>
-                            <input type="text" id="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>ふりがな</label>
-                            <input type="text" id="furigana">
-                        </div>
+                    <h3 style="margin-bottom: 14px; color: #c8956c;">基本情報</h3>
+                    <div class="field-inline">
+                        <label>お名前*</label>
+                        <div class="input-wrap"><input type="text" id="name" required placeholder="例：山田 花子"></div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>生年月日*</label>
-                            <div class="date-picker-selects">
+                    <div class="field-inline">
+                        <label>ふりがな</label>
+                        <div class="input-wrap"><input type="text" id="furigana" placeholder="例：やまだ はなこ"></div>
+                    </div>
+                    <div class="field-inline">
+                        <label>生年月日</label>
+                        <div class="input-wrap">
+                            <div class="date-picker-selects" style="flex-wrap:wrap;">
                                 <select id="birthdateYear" onchange="app.updateDays(); app.updateBirthdate()"></select>
                                 <span>年</span>
                                 <select id="birthdateMonth" onchange="app.updateDays(); app.updateBirthdate()"></select>
@@ -896,38 +935,41 @@
                             </div>
                             <input type="hidden" id="birthdate">
                         </div>
-                        <div class="form-group">
-                            <label>年齢</label>
-                            <input type="number" id="age" readonly>
-                        </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>電話番号</label>
-                            <input type="tel" id="phone">
-                        </div>
-                        <div class="form-group">
-                            <label>メールアドレス</label>
-                            <input type="email" id="email">
-                        </div>
+                    <div class="field-inline">
+                        <label>年齢</label>
+                        <div class="input-wrap"><input type="number" id="age" readonly style="max-width:80px;"></div>
                     </div>
-                    <div class="form-group">
+                    <div class="field-inline">
+                        <label>電話番号</label>
+                        <div class="input-wrap"><input type="tel" id="phone" placeholder="例：090-1234-5678"></div>
+                    </div>
+                    <div class="field-inline">
+                        <label>メール</label>
+                        <div class="input-wrap"><input type="email" id="email" placeholder="例：example@mail.com"></div>
+                    </div>
+                    <div class="field-inline">
                         <label>初回来店日</label>
-                        <input type="date" id="firstVisit">
+                        <div class="input-wrap"><input type="date" id="firstVisit"></div>
                     </div>
-                    <div class="form-group">
+                    <div class="field-inline">
                         <label>紹介元</label>
-                        <select id="referral">
-                            <option value="">選択してください</option>
-                            <option value="ホットペッパー">ホットペッパー</option>
-                            <option value="紹介">紹介</option>
-                            <option value="SNS">SNS</option>
-                            <option value="その他">その他</option>
-                        </select>
+                        <div class="input-wrap">
+                            <select id="referral" onchange="app.toggleReferralOther(this)">
+                                <option value="">選択してください</option>
+                                <option value="ホットペッパー">ホットペッパー</option>
+                                <option value="紹介">紹介</option>
+                                <option value="SNS">SNS</option>
+                                <option value="その他">その他（自由記入）</option>
+                            </select>
+                            <div id="referralOtherGroup" style="display:none; margin-top:6px;">
+                                <input type="text" id="referralOther" placeholder="紹介者名など自由にご記入ください">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
+                    <div class="field-inline">
                         <label>職業</label>
-                        <input type="text" id="occupation" placeholder="例：会社員、主婦、学生など">
+                        <div class="input-wrap"><input type="text" id="occupation" placeholder="例：会社員、主婦、学生など"></div>
                     </div>
 
                     <!-- お悩みチェック -->
@@ -991,6 +1033,11 @@
                                         <rect x="66" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
                                         <ellipse cx="44" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
                                         <ellipse cx="76" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                                        <!-- 肩甲骨（左右） -->
+                                        <path d="M 34,58 L 28,92 L 54,85 Z" fill="none" stroke="#a07860" stroke-width="1.0" stroke-dasharray="3,2" opacity="0.75"/>
+                                        <path d="M 86,58 L 92,92 L 66,85 Z" fill="none" stroke="#a07860" stroke-width="1.0" stroke-dasharray="3,2" opacity="0.75"/>
+                                        <text x="36" y="57" font-size="5.5" fill="#a07860" opacity="0.8" font-family="sans-serif">肩甲骨</text>
+                                        <text x="68" y="57" font-size="5.5" fill="#a07860" opacity="0.8" font-family="sans-serif">肩甲骨</text>
                                     </svg>
                                     <canvas class="body-map-canvas" id="bodyMapBackCanvas"></canvas>
                                 </div>
@@ -1411,8 +1458,17 @@
                     if (sessionSearchEl) sessionSearchEl.value = '';
                     this.renderCustomerDetail();
                 } else if (screenName === 'session') {
-                    // 新規追加のときだけお会計フォームをリセット
+                    // 新規追加のときは全フォームをリセット
                     if (!this.currentSessionId) {
+                        const today = new Date().toISOString().split('T')[0];
+                        document.getElementById('sessionDate').value = today;
+                        document.getElementById('sessionMenu').value = '';
+                        document.getElementById('sessionDuration').value = '';
+                        document.getElementById('sessionBodyParts').value = '';
+                        document.querySelectorAll('input[name="pressure"]').forEach(r => r.checked = false);
+                        document.getElementById('sessionNotes').value = '';
+                        document.getElementById('sessionNextNotes').value = '';
+                        document.getElementById('sessionNextInterval').value = '';
                         document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
                         document.getElementById('sessionPrice').value = '';
                         document.getElementById('paymentCalcResult').style.display = 'none';
@@ -1438,6 +1494,11 @@
                     document.getElementById('firstVisit').valueAsDate = new Date();
                     document.getElementById('receiptDate').valueAsDate = new Date();
                     this.initBirthdatePicker();
+                    // 紹介元その他欄を非表示リセット
+                    const refOtherGroup = document.getElementById('referralOtherGroup');
+                    if (refOtherGroup) refOtherGroup.style.display = 'none';
+                    const refOtherInput = document.getElementById('referralOther');
+                    if (refOtherInput) refOtherInput.value = '';
                 }
             },
 
@@ -1457,21 +1518,25 @@
                 if (!yearSel) return;
 
                 const currentYear = new Date().getFullYear();
-                yearSel.innerHTML = '';
+                yearSel.innerHTML = '<option value="">--</option>';
                 for (let y = currentYear - 100; y <= currentYear - 5; y++) {
                     yearSel.innerHTML += `<option value="${y}">${y}</option>`;
                 }
-                yearSel.value = '1985';
+                yearSel.value = '';
 
-                monthSel.innerHTML = '';
+                monthSel.innerHTML = '<option value="">--</option>';
                 for (let m = 1; m <= 12; m++) {
                     monthSel.innerHTML += `<option value="${String(m).padStart(2,'0')}">${m}</option>`;
                 }
-                monthSel.value = '01';
+                monthSel.value = '';
 
-                this.updateDays();
-                daySel.value = '01';
-                this.updateBirthdate();
+                daySel.innerHTML = '<option value="">--</option>';
+                for (let d = 1; d <= 31; d++) {
+                    daySel.innerHTML += `<option value="${String(d).padStart(2,'0')}">${d}</option>`;
+                }
+                daySel.value = '';
+                document.getElementById('birthdate').value = '';
+                document.getElementById('age').value = '';
             },
 
             updateDays() {
@@ -1479,11 +1544,11 @@
                 const monthSel = document.getElementById('birthdateMonth');
                 const daySel = document.getElementById('birthdateDay');
                 if (!yearSel || !monthSel || !daySel) return;
-                const year = parseInt(yearSel.value) || 1985;
+                const year = parseInt(yearSel.value) || new Date().getFullYear();
                 const month = parseInt(monthSel.value) || 1;
                 const daysInMonth = new Date(year, month, 0).getDate();
                 const currentDay = daySel.value;
-                daySel.innerHTML = '';
+                daySel.innerHTML = '<option value="">--</option>';
                 for (let d = 1; d <= daysInMonth; d++) {
                     daySel.innerHTML += `<option value="${String(d).padStart(2,'0')}">${d}</option>`;
                 }
@@ -1499,6 +1564,9 @@
                 if (year && month && day) {
                     document.getElementById('birthdate').value = `${year}-${month}-${day}`;
                     this.calculateAge();
+                } else {
+                    document.getElementById('birthdate').value = '';
+                    document.getElementById('age').value = '';
                 }
             },
 
@@ -1536,10 +1604,21 @@
                 }
             },
 
+            toggleReferralOther(select) {
+                const group = document.getElementById('referralOtherGroup');
+                if (group) {
+                    group.style.display = select.value === 'その他' ? 'block' : 'none';
+                    if (select.value !== 'その他') {
+                        const input = document.getElementById('referralOther');
+                        if (input) input.value = '';
+                    }
+                }
+            },
+
             // お悩み・施術遠慮
             setupConcernsAndCautions() {
-                const concerns = ['肩こり', '首こり', '肩甲骨', '腰痛', '背中の張り', '背部', '頭痛',
-                                '眼精疲労', '臀部', '股関節', '足のむくみ', 'ふくらはぎ', '足裏',
+                const concerns = ['肩こり', '首こり', '肩甲骨', '腰痛', '背中の張り', '頭痛',
+                                '眼精疲労', '臀部', '股関節', '大腿部', '足のむくみ', 'ふくらはぎ', '足裏',
                                 '腕', '手', '冷え性', '疲れやすい', '不眠', '睡眠',
                                 'ストレス', '自律神経', '全身疲労', 'その他'];
                 const cautionsArray = ['心臓病', '糖尿病', '血栓症', '動脈瘤', '静脈瘤', '高血圧・低血圧',
@@ -1904,6 +1983,13 @@
                 });
                 const cautions = Array.from(document.querySelectorAll('.caution-check:checked')).map(el => el.value);
 
+                // 紹介元（その他の場合はテキストを結合）
+                let referralValue = document.getElementById('referral').value;
+                if (referralValue === 'その他') {
+                    const otherText = (document.getElementById('referralOther') || {}).value || '';
+                    referralValue = otherText ? `その他（${otherText}）` : 'その他';
+                }
+
                 const customer = {
                     id: this.generateId(),
                     name: document.getElementById('name').value,
@@ -1912,7 +1998,7 @@
                     phone: document.getElementById('phone').value,
                     email: document.getElementById('email').value,
                     firstVisit: document.getElementById('firstVisit').value,
-                    referral: document.getElementById('referral').value,
+                    referral: referralValue,
                     occupation: document.getElementById('occupation').value,
                     concerns: concerns,
                     bodyMapFront: document.getElementById('bodyMapFrontCanvas').toDataURL(),
@@ -2184,14 +2270,21 @@
                 document.getElementById('questionnaireModal').classList.add('active');
 
                 // SVGとペン描画を同一canvas上に合成（ズレなし）
-                this.renderBodyMapCanvas('modalBodyFront', customer.bodyMapFront);
-                this.renderBodyMapCanvas('modalBodyBack', customer.bodyMapBack);
+                this.renderBodyMapCanvas('modalBodyFront', customer.bodyMapFront, false);
+                this.renderBodyMapCanvas('modalBodyBack', customer.bodyMapBack, true);
             },
 
-            renderBodyMapCanvas(canvasId, marksSrc) {
+            renderBodyMapCanvas(canvasId, marksSrc, isBack = false) {
                 const canvas = document.getElementById(canvasId);
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
+
+                const scapulaPaths = isBack ? `
+                    <path d="M 34,58 L 28,92 L 54,85 Z" fill="none" stroke="#a07860" stroke-width="1.0" stroke-dasharray="3,2" opacity="0.75"/>
+                    <path d="M 86,58 L 92,92 L 66,85 Z" fill="none" stroke="#a07860" stroke-width="1.0" stroke-dasharray="3,2" opacity="0.75"/>
+                    <text x="36" y="57" font-size="5.5" fill="#a07860" opacity="0.8" font-family="sans-serif">肩甲骨</text>
+                    <text x="68" y="57" font-size="5.5" fill="#a07860" opacity="0.8" font-family="sans-serif">肩甲骨</text>
+                ` : '';
 
                 const bodyPaths = `
                     <ellipse cx="60" cy="22" rx="14" ry="16" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
@@ -2210,6 +2303,7 @@
                     <rect x="66" y="200" width="18" height="54" rx="9" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
                     <ellipse cx="44" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
                     <ellipse cx="76" cy="258" rx="13" ry="7" fill="#f4e8e0" stroke="#a07860" stroke-width="1.2"/>
+                    ${scapulaPaths}
                 `;
 
                 if (!marksSrc) {
@@ -2265,7 +2359,39 @@
                 document.getElementById('firstVisit').value = customer.firstVisit || '';
                 document.getElementById('receiptDate').value = customer.receiptDate || '';
                 document.getElementById('occupation').value = customer.occupation || '';
-                if (customer.referral) document.getElementById('referral').value = customer.referral;
+
+                // 紹介元の復元
+                if (customer.referral) {
+                    const refVal = customer.referral;
+                    if (refVal.startsWith('その他（')) {
+                        document.getElementById('referral').value = 'その他';
+                        const otherText = refVal.replace(/^その他（/, '').replace(/）$/, '');
+                        const referralOtherGroup = document.getElementById('referralOtherGroup');
+                        const referralOtherInput = document.getElementById('referralOther');
+                        if (referralOtherGroup) referralOtherGroup.style.display = 'block';
+                        if (referralOtherInput) referralOtherInput.value = otherText;
+                    } else {
+                        document.getElementById('referral').value = refVal;
+                    }
+                }
+
+                // 生年月日の復元
+                if (customer.birthdate) {
+                    const parts = customer.birthdate.split('-');
+                    if (parts.length === 3) {
+                        const yearSel = document.getElementById('birthdateYear');
+                        const monthSel = document.getElementById('birthdateMonth');
+                        const daySel = document.getElementById('birthdateDay');
+                        if (yearSel && monthSel && daySel) {
+                            yearSel.value = parts[0];
+                            this.updateDays();
+                            monthSel.value = parts[1];
+                            this.updateDays();
+                            daySel.value = parts[2];
+                            this.updateBirthdate();
+                        }
+                    }
+                }
                 if (customer.otherHistory) document.getElementById('otherHistory').value = customer.otherHistory;
                 if (customer.acknowledged) document.getElementById('acknowledged').checked = true;
                 if (customer.paperConsentExists) document.getElementById('paperConsentExists').checked = true;
@@ -2602,19 +2728,26 @@
                 const y = this.analyticsYear, m = this.analyticsMonth;
                 label.textContent = `${y}年${m}月`;
 
-                // 対象月のセッションを日付ごとに集計
+                // 対象月のセッションを日付ごとに集計（セッション詳細も保持）
                 const dayMap = {};
                 this.clients.forEach(c => {
                     (c.sessions || []).forEach(s => {
                         if (!s.date) return;
                         const [sy, sm] = s.date.split('-').map(Number);
                         if (sy !== y || sm !== m) return;
-                        if (!dayMap[s.date]) dayMap[s.date] = { total: 0, count: 0, names: [] };
-                        // paymentBreakdown or price
+                        if (!dayMap[s.date]) dayMap[s.date] = { total: 0, count: 0, sessions: [] };
                         const price = s.price || 0;
                         dayMap[s.date].total += price;
                         dayMap[s.date].count++;
-                        dayMap[s.date].names.push(c.name);
+                        dayMap[s.date].sessions.push({
+                            id: s.id,
+                            clientId: c.id,
+                            clientName: c.name,
+                            menu: s.menu || '-',
+                            duration: s.duration || 0,
+                            price: price,
+                            paymentBreakdown: s.paymentBreakdown || []
+                        });
                     });
                 });
 
@@ -2632,13 +2765,38 @@
                     const [,, day] = date.split('-');
                     const dotw = new Date(date).getDay();
                     const color = dotw === 0 ? '#e57373' : dotw === 6 ? '#6ca0b5' : '#333';
-                    return `
-                        <div style="background:#fff;border:1px solid #f0d9d9;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                            <div>
-                                <div style="font-weight:700;font-size:15px;color:${color};">${parseInt(day)}日（${dow}）</div>
-                                <div style="font-size:12px;color:#aaa;margin-top:2px;">${d.names.join('、')} ／ ${d.count}件</div>
+                    const names = d.sessions.map(s => s.clientName).join('、');
+
+                    const sessionRows = d.sessions.map(s => `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid #f5e8e0;">
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:14px;font-weight:600;color:#333;">${s.clientName}</div>
+                                <div style="font-size:12px;color:#888;">${s.menu}${s.duration ? '（' + s.duration + '分）' : ''}</div>
+                                ${s.price > 0 ? `<div style="font-size:13px;color:#c8956c;font-weight:700;">¥${s.price.toLocaleString()}</div>` : ''}
+                                ${s.paymentBreakdown && s.paymentBreakdown.length > 0 ? s.paymentBreakdown.map(b=>`<div style="font-size:11px;color:#aaa;">${b.method} ¥${(b.amount||0).toLocaleString()}</div>`).join('') : ''}
                             </div>
-                            <div style="font-weight:800;font-size:16px;color:#c8956c;">${d.total > 0 ? '¥' + d.total.toLocaleString() : '-'}</div>
+                            <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px;">
+                                <button onclick="app.editSessionFromAnalytics('${s.clientId}','${s.id}')" style="padding:6px 10px;font-size:12px;background:#f5e6e8;color:#c8956c;border:1px solid #d4a5a5;border-radius:6px;cursor:pointer;min-height:36px;font-weight:600;">修正</button>
+                                <button onclick="app.deleteSessionFromAnalytics('${s.clientId}','${s.id}')" style="padding:6px 10px;font-size:12px;background:#e8a0a0;color:white;border:none;border-radius:6px;cursor:pointer;min-height:36px;font-weight:600;">削除</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div style="margin-bottom:8px;">
+                            <div onclick="app.toggleDayDetail('${date}')" style="background:#fff;border:1px solid #f0d9d9;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#fdf8f5'" onmouseout="this.style.background='#fff'">
+                                <div>
+                                    <div style="font-weight:700;font-size:15px;color:${color};">${parseInt(day)}日（${dow}）</div>
+                                    <div style="font-size:12px;color:#aaa;margin-top:2px;">${names} ／ ${d.count}件</div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-weight:800;font-size:16px;color:#c8956c;">${d.total > 0 ? '¥' + d.total.toLocaleString() : '-'}</span>
+                                    <span id="arrow-${date}" style="color:#c8956c;font-size:13px;transition:transform 0.2s;">▼</span>
+                                </div>
+                            </div>
+                            <div id="detail-${date}" style="display:none;background:#fdf8f5;border:1px solid #f0d9d9;border-top:none;border-radius:0 0 10px 10px;overflow:hidden;">
+                                ${sessionRows}
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -2652,6 +2810,33 @@
                         <div style="font-weight:800;font-size:17px;color:#c8956c;">¥${monthTotal.toLocaleString()}</div>
                     </div>
                 `;
+            },
+
+            // 日毎売上：日付行をタップして詳細を開閉
+            toggleDayDetail(date) {
+                const detail = document.getElementById('detail-' + date);
+                const arrow  = document.getElementById('arrow-' + date);
+                if (!detail) return;
+                const isOpen = detail.style.display !== 'none';
+                detail.style.display = isOpen ? 'none' : 'block';
+                if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+            },
+
+            // 売上分析画面からセッション編集
+            editSessionFromAnalytics(clientId, sessionId) {
+                this.currentCustomerId = clientId;
+                this.editSession(sessionId);
+            },
+
+            // 売上分析画面からセッション削除
+            deleteSessionFromAnalytics(clientId, sessionId) {
+                if (!confirm('この施術記録を削除しますか？')) return;
+                const customer = this.clients.find(c => c.id === clientId);
+                if (!customer) return;
+                customer.sessions = customer.sessions.filter(s => s.id !== sessionId);
+                this.saveClients();
+                this.renderAnalytics();
+                this.showToast('🗑️ 施術記録を削除しました');
             },
 
             // お会計計算
