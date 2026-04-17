@@ -885,14 +885,186 @@
             flex: 1;
             margin-bottom: 0;
         }
+
+        /* ===== PINロック画面 ===== */
+        #lockScreen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #f5e6e8 0%, #faf5f3 100%);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .lock-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #d4a5a5 0%, #c8956c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 16px rgba(200,149,108,0.3);
+        }
+
+        .lock-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #c8956c;
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+
+        .lock-subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 24px;
+            min-height: 20px;
+            text-align: center;
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            height: 20px;
+            align-items: center;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #c8956c;
+            background: transparent;
+            transition: background 0.15s;
+        }
+
+        .pin-dot.filled {
+            background: #c8956c;
+        }
+
+        .pin-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 72px);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .pin-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid #e8d0d5;
+            background: white;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .pin-btn:active {
+            background: #f5e6e8;
+            transform: scale(0.95);
+        }
+
+        .pin-btn.pin-empty {
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .pin-btn.pin-delete {
+            font-size: 22px;
+            color: #c8956c;
+        }
+
+        .lock-error {
+            color: #e57373;
+            font-size: 13px;
+            min-height: 20px;
+            margin-top: 4px;
+            text-align: center;
+            max-width: 260px;
+        }
+
+        .lock-footer {
+            margin-top: 28px;
+            font-size: 12px;
+            color: #ccc;
+            text-align: center;
+            line-height: 1.7;
+            max-width: 260px;
+        }
+
+        .lock-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 8px 14px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 44px;
+        }
+
+        .lock-btn:hover {
+            background: rgba(255,255,255,0.35);
+        }
     </style>
 </head>
 <body>
+
+    <!-- PINロック画面 -->
+    <div id="lockScreen">
+        <div class="lock-logo">K</div>
+        <div class="lock-title">KIRANAH</div>
+        <div class="lock-subtitle" id="lockSubtitle">PINを入力してください</div>
+        <div class="pin-dots" id="pinDots">
+            <div class="pin-dot" id="dot0"></div>
+            <div class="pin-dot" id="dot1"></div>
+            <div class="pin-dot" id="dot2"></div>
+            <div class="pin-dot" id="dot3"></div>
+        </div>
+        <div class="pin-pad">
+            <button class="pin-btn" onclick="security.pinInput('1')">1</button>
+            <button class="pin-btn" onclick="security.pinInput('2')">2</button>
+            <button class="pin-btn" onclick="security.pinInput('3')">3</button>
+            <button class="pin-btn" onclick="security.pinInput('4')">4</button>
+            <button class="pin-btn" onclick="security.pinInput('5')">5</button>
+            <button class="pin-btn" onclick="security.pinInput('6')">6</button>
+            <button class="pin-btn" onclick="security.pinInput('7')">7</button>
+            <button class="pin-btn" onclick="security.pinInput('8')">8</button>
+            <button class="pin-btn" onclick="security.pinInput('9')">9</button>
+            <button class="pin-btn pin-empty" disabled></button>
+            <button class="pin-btn" onclick="security.pinInput('0')">0</button>
+            <button class="pin-btn pin-delete" onclick="security.pinDelete()">⌫</button>
+        </div>
+        <div class="lock-error" id="lockError"></div>
+        <div class="lock-footer" id="lockFooter">Relaxation Space KIRANAH<br>カルテ管理システム</div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="header-logo">Relaxation Space KIRANAH</div>
             <div class="header-title" id="headerTitle">カルテ管理</div>
-            <div class="header-space"></div>
+            <button class="lock-btn" onclick="security.lock()" title="画面をロック">🔒</button>
         </div>
 
         <div class="content" id="mainContent">
@@ -1363,6 +1535,289 @@
     </div>
 
     <script>
+        // ===== セキュリティモジュール =====
+        const security = {
+            HASH_KEY:      'kiranah_pin_hash',
+            SALT_KEY:      'kiranah_pin_salt',
+            DATA_KEY:      'kiranah_data_enc',
+            FAIL_KEY:      'kiranah_fail_count',
+            FAIL_TIME_KEY: 'kiranah_fail_time',
+            MAX_FAILS:     5,
+            LOCK_DURATION: 30 * 1000,       // 30秒ロックアウト
+            INACTIVITY:    5 * 60 * 1000,   // 5分無操作でロック
+
+            _key: null,
+            _pin: '',
+            _mode: 'unlock',   // 'unlock' | 'setup' | 'confirm'
+            _setupPin: '',
+            _inactivityTimer: null,
+            _inactivityHandler: null,
+            _visibilityBound: false,
+
+            async init() {
+                const hasPin = localStorage.getItem(this.HASH_KEY);
+                if (!hasPin) {
+                    this._mode = 'setup';
+                    document.getElementById('lockSubtitle').textContent = '4桁のPINを設定してください';
+                    document.getElementById('lockFooter').textContent =
+                        'はじめてのご利用です。\nPINコードを設定してください。';
+                } else {
+                    this._mode = 'unlock';
+                    document.getElementById('lockSubtitle').textContent = 'PINを入力してください';
+                    if (this._isLockedOut()) this._startLockoutCountdown();
+                }
+                // キーボード対応
+                document.addEventListener('keydown', (e) => {
+                    if (document.getElementById('lockScreen').style.display === 'none') return;
+                    if (e.key >= '0' && e.key <= '9') this.pinInput(e.key);
+                    if (e.key === 'Backspace') this.pinDelete();
+                });
+            },
+
+            pinInput(digit) {
+                if (this._isLockedOut()) return;
+                if (this._pin.length >= 4) return;
+                this._pin += digit;
+                this._updateDots();
+                if (this._pin.length === 4) setTimeout(() => this._processPin(), 150);
+            },
+
+            pinDelete() {
+                if (this._pin.length > 0) {
+                    this._pin = this._pin.slice(0, -1);
+                    this._updateDots();
+                }
+            },
+
+            _updateDots() {
+                for (let i = 0; i < 4; i++) {
+                    const dot = document.getElementById('dot' + i);
+                    if (dot) dot.classList.toggle('filled', i < this._pin.length);
+                }
+            },
+
+            async _processPin() {
+                if (this._mode === 'setup') {
+                    this._setupPin = this._pin;
+                    this._pin = '';
+                    this._updateDots();
+                    this._mode = 'confirm';
+                    document.getElementById('lockSubtitle').textContent = 'もう一度同じPINを入力してください';
+                    document.getElementById('lockError').textContent = '';
+
+                } else if (this._mode === 'confirm') {
+                    if (this._pin === this._setupPin) {
+                        await this._savePin(this._pin);
+                        await this._unlock(this._pin);
+                    } else {
+                        document.getElementById('lockError').textContent = 'PINが一致しません。最初からやり直してください。';
+                        this._pin = '';
+                        this._setupPin = '';
+                        this._mode = 'setup';
+                        this._updateDots();
+                        document.getElementById('lockSubtitle').textContent = '4桁のPINを設定してください';
+                    }
+
+                } else {
+                    // ロック解除モード
+                    const valid = await this._verifyPin(this._pin);
+                    if (valid) {
+                        this._resetFailCount();
+                        await this._unlock(this._pin);
+                    } else {
+                        this._pin = '';
+                        this._updateDots();
+                        this._recordFail();
+                        const count = this._getFailCount();
+                        const remaining = this.MAX_FAILS - count;
+                        if (remaining <= 0) {
+                            this._startLockoutCountdown();
+                        } else {
+                            document.getElementById('lockError').textContent =
+                                `PINが違います（あと${remaining}回で一時ロック）`;
+                        }
+                    }
+                }
+            },
+
+            async _savePin(pin) {
+                const salt = crypto.getRandomValues(new Uint8Array(16));
+                const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2,'0')).join('');
+                const hash = await this._hashPin(pin, saltHex);
+                localStorage.setItem(this.HASH_KEY, hash);
+                localStorage.setItem(this.SALT_KEY, saltHex);
+            },
+
+            async _verifyPin(pin) {
+                const saltHex = localStorage.getItem(this.SALT_KEY);
+                const storedHash = localStorage.getItem(this.HASH_KEY);
+                if (!saltHex || !storedHash) return false;
+                const hash = await this._hashPin(pin, saltHex);
+                return hash === storedHash;
+            },
+
+            async _hashPin(pin, saltHex) {
+                const encoder = new TextEncoder();
+                const buf = await crypto.subtle.digest('SHA-256', encoder.encode(pin + saltHex));
+                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+            },
+
+            async _deriveKey(pin) {
+                const saltHex = localStorage.getItem(this.SALT_KEY) || 'kiranah00000000000000000000000000';
+                const salt = new Uint8Array(saltHex.match(/.{2}/g).map(h => parseInt(h, 16)));
+                const keyMaterial = await crypto.subtle.importKey(
+                    'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']
+                );
+                return crypto.subtle.deriveKey(
+                    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                    keyMaterial,
+                    { name: 'AES-GCM', length: 256 },
+                    false,
+                    ['encrypt', 'decrypt']
+                );
+            },
+
+            async _unlock(pin) {
+                this._key = await this._deriveKey(pin);
+                let clients = [];
+
+                const encData = localStorage.getItem(this.DATA_KEY);
+                if (encData) {
+                    try {
+                        clients = await this._decryptClients(encData);
+                    } catch(e) {
+                        document.getElementById('lockError').textContent = 'データの復号に失敗しました。PINを確認してください。';
+                        this._key = null;
+                        this._pin = '';
+                        this._updateDots();
+                        return;
+                    }
+                } else {
+                    // 既存の平文データを暗号化して移行
+                    const plain = localStorage.getItem('kiranah_clients');
+                    if (plain) {
+                        try {
+                            clients = JSON.parse(plain);
+                            const enc = await this._encryptData(JSON.stringify(clients));
+                            localStorage.setItem(this.DATA_KEY, enc);
+                            localStorage.removeItem('kiranah_clients');
+                            localStorage.removeItem('kiranah_clients_backup');
+                        } catch(e) { clients = []; }
+                    }
+                }
+
+                app.clients = clients;
+                document.getElementById('lockScreen').style.display = 'none';
+                app.finishInit();
+                this._startInactivity();
+            },
+
+            async _encryptData(json) {
+                if (!this._key) throw new Error('No key');
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                const enc = await crypto.subtle.encrypt(
+                    { name: 'AES-GCM', iv },
+                    this._key,
+                    new TextEncoder().encode(json)
+                );
+                const combined = new Uint8Array(12 + enc.byteLength);
+                combined.set(iv, 0);
+                combined.set(new Uint8Array(enc), 12);
+                return btoa(String.fromCharCode(...combined));
+            },
+
+            async _decryptClients(b64) {
+                if (!this._key) throw new Error('No key');
+                const combined = new Uint8Array(atob(b64).split('').map(c => c.charCodeAt(0)));
+                const iv = combined.slice(0, 12);
+                const data = combined.slice(12);
+                const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, this._key, data);
+                return JSON.parse(new TextDecoder().decode(dec));
+            },
+
+            async saveClients(clients) {
+                if (!this._key) return;
+                const enc = await this._encryptData(JSON.stringify(clients));
+                localStorage.setItem(this.DATA_KEY, enc);
+            },
+
+            lock() {
+                this._stopInactivity();
+                this._key = null;
+                this._pin = '';
+                this._setupPin = '';
+                this._mode = 'unlock';
+                this._updateDots();
+                app.clients = [];
+                const lockScreen = document.getElementById('lockScreen');
+                lockScreen.style.display = 'flex';
+                document.getElementById('lockSubtitle').textContent = 'PINを入力してください';
+                document.getElementById('lockError').textContent = '';
+            },
+
+            _startInactivity() {
+                this._stopInactivity();
+                const reset = () => {
+                    clearTimeout(this._inactivityTimer);
+                    this._inactivityTimer = setTimeout(() => this.lock(), this.INACTIVITY);
+                };
+                this._inactivityHandler = reset;
+                ['mousemove','keydown','click','touchstart','scroll'].forEach(ev => {
+                    document.addEventListener(ev, reset, { passive: true });
+                });
+                reset();
+                if (!this._visibilityBound) {
+                    this._visibilityBound = true;
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden && this._key) this.lock();
+                    });
+                }
+            },
+
+            _stopInactivity() {
+                if (this._inactivityTimer) { clearTimeout(this._inactivityTimer); this._inactivityTimer = null; }
+                if (this._inactivityHandler) {
+                    ['mousemove','keydown','click','touchstart','scroll'].forEach(ev => {
+                        document.removeEventListener(ev, this._inactivityHandler);
+                    });
+                    this._inactivityHandler = null;
+                }
+            },
+
+            _isLockedOut() {
+                if (this._getFailCount() < this.MAX_FAILS) return false;
+                const t = parseInt(localStorage.getItem(this.FAIL_TIME_KEY) || '0');
+                return Date.now() - t < this.LOCK_DURATION;
+            },
+
+            _getLockoutRemaining() {
+                const t = parseInt(localStorage.getItem(this.FAIL_TIME_KEY) || '0');
+                return Math.max(0, this.LOCK_DURATION - (Date.now() - t));
+            },
+
+            _startLockoutCountdown() {
+                const errEl = document.getElementById('lockError');
+                const tick = () => {
+                    const rem = this._getLockoutRemaining();
+                    if (rem <= 0) { this._resetFailCount(); errEl.textContent = ''; return; }
+                    errEl.textContent = `入力制限：${Math.ceil(rem/1000)}秒後に再試行できます`;
+                    setTimeout(tick, 1000);
+                };
+                tick();
+            },
+
+            _getFailCount()  { return parseInt(localStorage.getItem(this.FAIL_KEY) || '0'); },
+            _recordFail() {
+                const c = this._getFailCount() + 1;
+                localStorage.setItem(this.FAIL_KEY, c);
+                if (c >= this.MAX_FAILS) localStorage.setItem(this.FAIL_TIME_KEY, Date.now().toString());
+            },
+            _resetFailCount() {
+                localStorage.removeItem(this.FAIL_KEY);
+                localStorage.removeItem(this.FAIL_TIME_KEY);
+            }
+        };
+
         // アプリケーション
         const app = {
             currentCustomerId: null,
@@ -1374,9 +1829,13 @@
             drawModes: {},
             signaturePad: null,
 
-            // 初期化
+            // 初期化（セキュリティ認証後に finishInit() が呼ばれる）
             init() {
-                this.loadClients();
+                security.init();
+            },
+
+            // 認証成功後の初期化
+            finishInit() {
                 this.setupDateDefaults();
                 this.setupBodyMaps();
                 this.setupSignaturePad();
@@ -1386,41 +1845,9 @@
                 this.initBirthdatePicker();
             },
 
-            // LocalStorage
-            loadClients() {
-                try {
-                    const data = localStorage.getItem('kiranah_clients');
-                    if (data) {
-                        this.clients = JSON.parse(data);
-                        // 正常に読めたらバックアップも更新
-                        localStorage.setItem('kiranah_clients_backup', data);
-                    } else {
-                        // メインキーにデータがない場合、バックアップから復元を試みる
-                        const backup = localStorage.getItem('kiranah_clients_backup');
-                        if (backup) {
-                            this.clients = JSON.parse(backup);
-                            // バックアップからメインキーを復元
-                            localStorage.setItem('kiranah_clients', backup);
-                        } else {
-                            this.clients = [];
-                        }
-                    }
-                } catch(e) {
-                    // JSONパースエラー時もバックアップから復元
-                    try {
-                        const backup = localStorage.getItem('kiranah_clients_backup');
-                        this.clients = backup ? JSON.parse(backup) : [];
-                    } catch(e2) {
-                        this.clients = [];
-                    }
-                }
-            },
-
+            // データ保存（暗号化はセキュリティモジュールが担当）
             saveClients() {
-                const json = JSON.stringify(this.clients);
-                localStorage.setItem('kiranah_clients', json);
-                // 自動バックアップ（2重保存でデータを守る）
-                localStorage.setItem('kiranah_clients_backup', json);
+                security.saveClients(this.clients).catch(e => console.error('保存エラー:', e));
             },
 
             // 手動バックアップ（JSONダウンロード）
