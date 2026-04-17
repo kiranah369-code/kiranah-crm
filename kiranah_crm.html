@@ -1012,6 +1012,45 @@
             max-width: 260px;
         }
 
+        .bio-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #d4a5a5 0%, #c8956c 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 32px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(200,149,108,0.35);
+            margin-bottom: 16px;
+            min-width: 240px;
+            transition: all 0.2s;
+        }
+
+        .bio-btn:active { transform: scale(0.97); }
+
+        .bio-divider {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            color: #ccc;
+            font-size: 12px;
+            margin-bottom: 16px;
+            width: 240px;
+        }
+
+        .bio-divider::before,
+        .bio-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0d0d5;
+        }
+
         .lock-btn {
             background: rgba(255,255,255,0.2);
             color: white;
@@ -1057,6 +1096,11 @@
             <button class="pin-btn pin-delete" onclick="security.pinDelete()">⌫</button>
         </div>
         <div class="lock-error" id="lockError"></div>
+        <!-- 生体認証ボタン（ソフトロック時のみ表示） -->
+        <button id="bioBtn" class="bio-btn" onclick="security.biometricUnlock()">
+            🔐 指紋 / Face ID で解除
+        </button>
+        <div id="bioDivider" class="bio-divider">または</div>
         <div class="lock-footer" id="lockFooter">Relaxation Space KIRANAH<br>カルテ管理システム</div>
     </div>
 
@@ -1064,7 +1108,7 @@
         <div class="header">
             <div class="header-logo">Relaxation Space KIRANAH</div>
             <div class="header-title" id="headerTitle">カルテ管理</div>
-            <button class="lock-btn" onclick="security.lock()" title="画面をロック">🔒</button>
+            <button class="lock-btn" onclick="security.hardLock()" title="画面をロック">🔒</button>
         </div>
 
         <div class="content" id="mainContent">
@@ -1550,6 +1594,7 @@
             _pin: '',
             _mode: 'unlock',   // 'unlock' | 'setup' | 'confirm'
             _setupPin: '',
+            _isSoftLocked: false,
             _inactivityTimer: null,
             _inactivityHandler: null,
             _visibilityBound: false,
@@ -1623,7 +1668,15 @@
                     const valid = await this._verifyPin(this._pin);
                     if (valid) {
                         this._resetFailCount();
-                        await this._unlock(this._pin);
+                        if (this._isSoftLocked && this._key) {
+                            // ソフトロック：キーは残っているので再表示のみ
+                            this._isSoftLocked = false;
+                            document.getElementById('lockScreen').style.display = 'none';
+                            this._startInactivity();
+                        } else {
+                            // ハードロック：キーを再導出してアプリ起動
+                            await this._unlock(this._pin);
+                        }
                     } else {
                         this._pin = '';
                         this._updateDots();
@@ -1707,9 +1760,21 @@
                 }
 
                 app.clients = clients;
+                this._isSoftLocked = false;
                 document.getElementById('lockScreen').style.display = 'none';
                 app.finishInit();
                 this._startInactivity();
+
+                // 初回のみ生体認証登録を促す
+                if (!localStorage.getItem('kiranah_bio_prompted') && window.PublicKeyCredential) {
+                    setTimeout(async () => {
+                        if (confirm('指紋・Face ID認証を登録しますか？\n次回の自動ロック後、すばやく解除できます。')) {
+                            await this.registerBiometric();
+                        } else {
+                            localStorage.setItem('kiranah_bio_prompted', '1');
+                        }
+                    }, 800);
+                }
             },
 
             async _encryptData(json) {
@@ -1741,25 +1806,118 @@
                 localStorage.setItem(this.DATA_KEY, enc);
             },
 
-            lock() {
+            // ソフトロック：キーをメモリに保持、生体認証で解除可能
+            softLock() {
                 this._stopInactivity();
+                this._isSoftLocked = true;
+                this._pin = '';
+                this._mode = 'unlock';
+                this._updateDots();
+                document.getElementById('lockScreen').style.display = 'flex';
+                document.getElementById('lockSubtitle').textContent = 'PINを入力してください';
+                document.getElementById('lockError').textContent = '';
+                this._updateBioButton();
+            },
+
+            // ハードロック：キーを破棄、PIN必須
+            hardLock() {
+                this._stopInactivity();
+                this._isSoftLocked = false;
                 this._key = null;
                 this._pin = '';
                 this._setupPin = '';
                 this._mode = 'unlock';
                 this._updateDots();
                 app.clients = [];
-                const lockScreen = document.getElementById('lockScreen');
-                lockScreen.style.display = 'flex';
+                document.getElementById('lockScreen').style.display = 'flex';
                 document.getElementById('lockSubtitle').textContent = 'PINを入力してください';
                 document.getElementById('lockError').textContent = '';
+                this._updateBioButton();
+            },
+
+            // 後方互換（自動ロックはソフトロック）
+            lock() { this.softLock(); },
+
+            // 生体認証ボタンの表示制御
+            _updateBioButton() {
+                const bioBtn = document.getElementById('bioBtn');
+                const bioDivider = document.getElementById('bioDivider');
+                if (!bioBtn) return;
+                const show = !!localStorage.getItem('kiranah_bio_id') && this._isSoftLocked;
+                bioBtn.style.display = show ? 'flex' : 'none';
+                if (bioDivider) bioDivider.style.display = show ? 'flex' : 'none';
+            },
+
+            // 生体認証を登録
+            async registerBiometric() {
+                if (!window.PublicKeyCredential) {
+                    app.showToast('この端末は生体認証に対応していません');
+                    return false;
+                }
+                try {
+                    const challenge = crypto.getRandomValues(new Uint8Array(32));
+                    const credential = await navigator.credentials.create({
+                        publicKey: {
+                            challenge,
+                            rp: { name: 'KIRANAH', id: location.hostname },
+                            user: {
+                                id: crypto.getRandomValues(new Uint8Array(16)),
+                                name: 'kiranah-user',
+                                displayName: 'KIRANAH'
+                            },
+                            pubKeyCredParams: [
+                                { type: 'public-key', alg: -7 },
+                                { type: 'public-key', alg: -257 }
+                            ],
+                            authenticatorSelection: {
+                                authenticatorAttachment: 'platform',
+                                userVerification: 'required'
+                            },
+                            timeout: 60000
+                        }
+                    });
+                    const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+                    localStorage.setItem('kiranah_bio_id', credId);
+                    localStorage.setItem('kiranah_bio_prompted', '1');
+                    app.showToast('指紋・Face ID認証を登録しました！');
+                    return true;
+                } catch(e) {
+                    localStorage.setItem('kiranah_bio_prompted', '1');
+                    app.showToast('登録をキャンセルしました');
+                    return false;
+                }
+            },
+
+            // 生体認証でロック解除
+            async biometricUnlock() {
+                if (!this._isSoftLocked || !this._key) return;
+                const credIdB64 = localStorage.getItem('kiranah_bio_id');
+                if (!credIdB64) return;
+                try {
+                    const credId = new Uint8Array(atob(credIdB64).split('').map(c => c.charCodeAt(0)));
+                    const challenge = crypto.getRandomValues(new Uint8Array(32));
+                    await navigator.credentials.get({
+                        publicKey: {
+                            challenge,
+                            allowCredentials: [{ type: 'public-key', id: credId }],
+                            userVerification: 'required',
+                            timeout: 60000
+                        }
+                    });
+                    // 認証成功
+                    this._isSoftLocked = false;
+                    document.getElementById('lockScreen').style.display = 'none';
+                    this._startInactivity();
+                } catch(e) {
+                    document.getElementById('lockError').textContent = '認証に失敗しました。PINを入力してください。';
+                }
             },
 
             _startInactivity() {
                 this._stopInactivity();
                 const reset = () => {
                     clearTimeout(this._inactivityTimer);
-                    this._inactivityTimer = setTimeout(() => this.lock(), this.INACTIVITY);
+                    this._inactivityTimer = setTimeout(() => this.softLock(), this.INACTIVITY);
                 };
                 this._inactivityHandler = reset;
                 ['mousemove','keydown','click','touchstart','scroll'].forEach(ev => {
@@ -1769,7 +1927,7 @@
                 if (!this._visibilityBound) {
                     this._visibilityBound = true;
                     document.addEventListener('visibilitychange', () => {
-                        if (document.hidden && this._key) this.lock();
+                        if (document.hidden && this._key) this.softLock();
                     });
                 }
             },
